@@ -1,4 +1,4 @@
-package com.client.recouvrementapp.ui.theme
+package com.client.recouvrementapp.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
