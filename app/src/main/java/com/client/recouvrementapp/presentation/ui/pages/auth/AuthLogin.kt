@@ -1,9 +1,7 @@
 package com.client.recouvrementapp.presentation.ui.pages.auth
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,30 +33,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
 import com.client.recouvrementapp.core.AsteriskPasswordVisualTransformation
+import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgroundShapes
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 
 @Composable
-fun AuthLogin(){
-    AuthLoginBody()
+fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}) {
+    AuthLoginBody(navC,onBackEvent)
 }
 
 @Composable
-fun AuthLoginBody(){
+fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -69,18 +67,7 @@ fun AuthLoginBody(){
     var msg by remember { mutableStateOf("") }
     var titleMsg by remember { mutableStateOf("Erreur") }
     var isShow by remember { mutableStateOf(false) }
-    val maxLength = 10 // Longueur maximale
     val isVisible = remember { mutableStateOf(false) }
-//    val rainbowColorsBrush = remember {
-//        Brush.sweepGradient(
-//            listOf(
-//                Color(0xFF380E81),
-//                Color(0xFF06230D),
-//                Color(0xFF2B4B4F),
-//                Color(0xFF17023D)
-//            )
-//        )
-//    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -195,7 +182,13 @@ fun AuthLoginBody(){
                     )
                     Space(y=20)
                     Button(
-                        onClick = {},
+                        onClick = {
+                            navC?.navigate(route = ScreenRoute.Home.name){
+                                popUpTo(navC.graph.id){
+                                    inclusive = true
+                                }
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor =  Color(0xFF15D77D),
