@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
@@ -23,17 +24,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.client.recouvrementapp.domain.model.TypeRecouvrement
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.client.recouvrementapp.presentation.ui.theme.wsColor
 
 @Composable
-fun HistoryRecouvrement(){
-    HistoryRecouvrementBody()
+fun HistoryRecouvrement(navC: NavHostController, onBackEvent: () -> Unit = {}) {
+    HistoryRecouvrementBody(navC,onBackEvent)
 }
 
 @Composable
-fun HistoryRecouvrementBody(){
+fun HistoryRecouvrementBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {}) {
     val scrollHorizontal = rememberScrollState()
     val scrollVertical = rememberScrollState()
     val positionChannel = remember { mutableIntStateOf(1) }
@@ -49,38 +51,41 @@ fun HistoryRecouvrementBody(){
         topBar = {
             TopBarSimple(
                 title = "Historiques",
-                isMain = false
+                isMain = false,
+                onBackEvent = onBackEvent
             )
         }
     ) {
-        Column(Modifier.padding(it).fillMaxSize()) {
-            Row(modifier = Modifier.horizontalScroll(scrollHorizontal).fillMaxWidth()) {
-                Spacer(Modifier.width(15.dp))
-                typeRecouvrementList.forEachIndexed {indice,it->
-                    colorState.value = it.isActive
-                    SuggestionChip(
-                        enabled = activeChip.value,
-                        shape = RoundedCornerShape(35.dp),
-                        label = {
-                            Text(
-                                when(it.id){
-                                    1-> it.title
-                                    2-> it.title
-                                    3 -> it.title
-                                    4-> it.title
-                                    else -> it.title
+        Column(Modifier.verticalScroll(scrollVertical)) {
+            Column(Modifier.padding(it).fillMaxSize()) {
+                Row(modifier = Modifier.horizontalScroll(scrollHorizontal).fillMaxWidth()) {
+                    Spacer(Modifier.width(15.dp))
+                    typeRecouvrementList.forEachIndexed {indice,it->
+                        colorState.value = it.isActive
+                        SuggestionChip(
+                            enabled = activeChip.value,
+                            shape = RoundedCornerShape(35.dp),
+                            label = {
+                                Text(
+                                    when(it.id){
+                                        1-> it.title
+                                        2-> it.title
+                                        3 -> it.title
+                                        4-> it.title
+                                        else -> it.title
+                                    }
+                                )
+                            },
+                            onClick = {
+                                typeRecouvrementList.forEachIndexed { i, it ->
+                                    typeRecouvrementList[i] = it.copy(isActive = i == indice)
                                 }
-                            )
-                        },
-                        onClick = {
-                            typeRecouvrementList.forEachIndexed { i, it ->
-                                typeRecouvrementList[i] = it.copy(isActive = i == indice)
-                            }
-                            positionChannel.intValue = it.id
-                        },
-                        colors =  if(it.isActive) SuggestionChipDefaults.suggestionChipColors(wsColor, labelColor = if (!activeChip.value) wsColor else Color.Unspecified, disabledContainerColor = if (!activeChip.value) wsColor else Color.Unspecified) else SuggestionChipDefaults.suggestionChipColors()
-                    )
-                    Spacer(Modifier.width(10.dp))
+                                positionChannel.intValue = it.id
+                            },
+                            colors =  if(it.isActive) SuggestionChipDefaults.suggestionChipColors(wsColor, labelColor = if (!activeChip.value) wsColor else Color.Unspecified, disabledContainerColor = if (!activeChip.value) wsColor else Color.Unspecified) else SuggestionChipDefaults.suggestionChipColors()
+                        )
+                        Spacer(Modifier.width(10.dp))
+                    }
                 }
             }
         }

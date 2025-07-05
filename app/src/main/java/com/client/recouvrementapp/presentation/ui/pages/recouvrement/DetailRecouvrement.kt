@@ -7,20 +7,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 
 @Composable
-fun DetailRecouvrement(){
-    DetailRecouvrementBody()
+fun DetailRecouvrement(navC: NavHostController, onBackEvent: () -> Unit) {
+    DetailRecouvrementBody(navC,onBackEvent)
 }
 
 @Composable
-fun DetailRecouvrementBody(){
+fun DetailRecouvrementBody(navC: NavHostController? = null, onBackEvent: () -> Unit ={}) {
     Scaffold(
         topBar = {
             TopBarSimple(
                 isMain = false,
-                title = "Details"
+                title = "Details",
+                onBackEvent = onBackEvent
             )
         }
     ) {
