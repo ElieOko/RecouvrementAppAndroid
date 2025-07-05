@@ -7,20 +7,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 
 @Composable
-fun Paiement(){
-    PaiementBody()
+fun Paiement(navC: NavHostController, onBackEvent: () -> Unit={}) {
+    PaiementBody(navC,onBackEvent)
 }
 
 @Composable
-fun PaiementBody(){
+fun PaiementBody(navC: NavHostController? = null, onBackEvent: () -> Unit ={}) {
     Scaffold(
         topBar = {
             TopBarSimple(
                 isMain = false,
-                title = "Paiement"
+                title = "Paiement",
+                onBackEvent = onBackEvent
             )
         }
     ) {
