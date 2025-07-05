@@ -66,7 +66,7 @@ fun TopBarSimple(
     username: String = "elieoko",
     title : String = "Recouvrement",
     onclickLogOut : ()->Unit = {},
-    onclickNavigation : ()-> Unit = {},
+    onBackEvent : ()-> Unit = {},
     onclick :()-> Unit = {},
     isMain : Boolean = true
 ){
@@ -74,7 +74,7 @@ fun TopBarSimple(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White.copy(0.8F)),
         navigationIcon = {
             if (!isMain){
-                IconButton(onClick = {onclickNavigation}) {
+                IconButton(onClick = {onBackEvent()}) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, null, modifier = Modifier.size(24.dp))
                 }
             }
@@ -82,7 +82,7 @@ fun TopBarSimple(
         title = { Text(title) },
         actions = {
             if (isMain){
-                IconButton(onClick = {onclickLogOut}) {
+                IconButton(onClick = {onclickLogOut()}) {
                     Icon(painterResource(R.drawable.logout), null, modifier = Modifier.size(24.dp))
                 }
                 Space(x = 18)
