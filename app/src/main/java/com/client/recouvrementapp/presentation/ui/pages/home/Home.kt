@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import com.client.recouvrementapp.domain.model.MenuItem
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouvrement
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton
@@ -58,6 +59,11 @@ fun HomeBody(navC: NavHostController? = null) {
             }
         }
     }
+    val itemMenu = listOf<MenuItem>(
+        MenuItem(1,"Config Printer", eventClick = {
+
+        })
+    )
     var onclick : () -> Unit = {}
     Scaffold(
         topBar = {
