@@ -3,7 +3,9 @@ package com.client.recouvrementapp.presentation.components.elements
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -16,22 +18,37 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun InputField(
+    modifier: Modifier = Modifier,
     value : String,
     onValueChange: (String) -> Unit,
-    title : String = "",
-    icon : Int
+    icon : Int = 0,
+    iconLast : Int? = null,
+    isSingle : Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    placeholder : String = "",
+    onclickLastIcon : ()-> Unit = {}
 ) {
     OutlinedTextField(
         value = value,
+        keyboardOptions = keyboardOptions,
         onValueChange = onValueChange,
-        label = { Text(title) },
+        placeholder = {Text(placeholder)},
         leadingIcon = {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = null,
-                modifier = Modifier.size(25.dp),
-                tint = Color.Black
-            )
+            if (icon != 0){
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(25.dp),
+                    tint = Color.Black
+                )
+            }
+        },
+        trailingIcon = {
+            if (iconLast != null){
+                IconButton(onClick = onclickLastIcon) {
+                    Icon(painterResource(iconLast),null)
+                }
+            }
         },
         maxLines = 1,
         colors = OutlinedTextFieldDefaults.colors(
@@ -44,7 +61,49 @@ fun InputField(
             unfocusedLeadingIconColor = Color.Black
         ),
         textStyle = TextStyle(color = Color.Black),
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp)
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        singleLine = isSingle
+    )
+}
+
+
+@Composable
+fun InputFieldCompose(
+    modifier: Modifier = Modifier,
+    value : String,
+    onValueChange: (String) -> Unit,
+    iconLast : Int? = null,
+    isSingle : Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    placeholder : String = "",
+    onclickLastIcon : ()-> Unit = {}
+) {
+    OutlinedTextField(
+        value = value,
+        keyboardOptions = keyboardOptions,
+        onValueChange = onValueChange,
+        placeholder = {Text(placeholder)},
+        trailingIcon = {
+            if (iconLast != null){
+                IconButton(onClick = onclickLastIcon) {
+                    Icon(painterResource(iconLast),null)
+                }
+            }
+        },
+        maxLines = 1,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.Black,
+            unfocusedBorderColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            unfocusedLabelColor = Color.Black,
+            cursorColor = Color.Black,
+            focusedLeadingIconColor = Color.Black,
+            unfocusedLeadingIconColor = Color.Black
+        ),
+        textStyle = TextStyle(color = Color.Black),
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        singleLine = isSingle
     )
 }

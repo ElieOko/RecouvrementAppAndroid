@@ -2,6 +2,7 @@ package com.client.recouvrementapp.presentation.components.elements
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
@@ -12,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,6 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import com.client.recouvrementapp.R
+import com.client.recouvrementapp.domain.model.MenuItem
 import com.client.recouvrementapp.presentation.ui.theme.bagdeColor
 
 @Composable
@@ -68,8 +76,10 @@ fun TopBarSimple(
     onclickLogOut : ()->Unit = {},
     onBackEvent : ()-> Unit = {},
     onclick :()-> Unit = {},
+    menuItem :List<MenuItem> = emptyList(),
     isMain : Boolean = true
 ){
+    var expanded by remember { mutableStateOf(false) }
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White.copy(0.8F)),
         navigationIcon = {
@@ -97,9 +107,24 @@ fun TopBarSimple(
                     Text(username[0].uppercaseChar().toString(), color = Color.White)
                 }
                 Space(x = 10)
+                Box {
+                    IconButton({}) {
+                        Icon(painterResource(R.drawable.menu), null, modifier = Modifier.size(24.dp))
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        menuItemData.forEach { option ->
+                            DropdownMenuItem(
+                                text = { Text(option) },
+                                onClick = { /* Do something... */ }
+                            )
+                        }
+                    }
+                }
+
             }
-
-
         }
     )
 }
