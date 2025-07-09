@@ -5,5 +5,7 @@ enum class ScreenRoute {
     Home,
     History,
     Detail,
-    Payment
+    Payment,
+    PaymentPrinter,
+    PrinterConfig
 }
