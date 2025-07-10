@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(files("libs/Printer7002.jar"))
     val room_version = "2.7.2"
 
     implementation(libs.androidx.core.ktx)
