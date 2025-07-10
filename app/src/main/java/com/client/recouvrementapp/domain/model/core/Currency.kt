@@ -11,7 +11,7 @@ data class Currency(
     fun listCurrency() : List<Currency>{
         return listOf(
             Currency(1,"Dollar", "USD","$"),
-            Currency(1,"Franc Congolais", "CDF","FC")
+            Currency(2,"Franc Congolais", "CDF","Fc")
         )
     }
 

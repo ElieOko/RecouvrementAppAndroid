@@ -25,12 +25,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
+import com.partners.hdfils_recolte.presentation.ui.components.Space
 
 @Composable
 @Preview(showBackground = true)
 fun BoxMainRecouvrement(
     modifier: Modifier = Modifier,
-    amout : Int = 1000,
+    listRecouvrementAmountOfDay : List<RecouvrementAmountOfDay> = emptyList(),
     width : Int = 200,
     onclick : ()->Unit ={}
 ){
@@ -58,14 +60,14 @@ fun BoxMainRecouvrement(
 //                    Icon(painterResource(R.drawable.doc), modifier = Modifier.size(42.dp), contentDescription = "icon",tint = Color.Black)
                 }
             }
-
         }
         Row(modifier = Modifier.fillMaxWidth().padding(5.dp),verticalAlignment = Alignment.CenterVertically) {
             Spacer(Modifier.width(10.dp))
             Column {
-                Text("$ $amout", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                listRecouvrementAmountOfDay.forEach {
+                    Text(if(it.currency.symbole.length != 1) "${it.currency.symbole} ${it.amount}" else "${it.currency.symbole}  ${it.amount}", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
-
     }
 }

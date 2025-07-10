@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.domain.model.MenuItem
+import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
+import com.client.recouvrementapp.domain.model.core.Currency
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouvrement
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton
@@ -51,6 +53,18 @@ fun HomeBody(navC: NavHostController? = null) {
     var msg = ""
     var textPositive = "Valider"
     var textNegative = "Annuler"
+    val listOfRecouvrementDay = listOf<RecouvrementAmountOfDay>(
+        RecouvrementAmountOfDay(
+            currency = Currency(1,"Dollar", "USD","$"),
+            0.0
+        ),
+        RecouvrementAmountOfDay(
+        currency = Currency(1,"Franc Congolais", "CDF","FC"),
+            0.0
+        ),
+    )
+
+
     val onLogOutEvent :() -> Unit = {
         isShow.value = false
         navC?.navigate(route = ScreenRoute.Login.name){
@@ -61,7 +75,7 @@ fun HomeBody(navC: NavHostController? = null) {
     }
     val itemMenu = listOf<MenuItem>(
         MenuItem(1,"Config Printer", eventClick = {
-
+            navC?.navigate(route = ScreenRoute.PrinterConfig.name)
         })
     )
     var onclick : () -> Unit = {}
@@ -75,7 +89,8 @@ fun HomeBody(navC: NavHostController? = null) {
                     titleMsg = "Information"
                     isShow.value = true
                     onclick = onLogOutEvent
-                }
+                },
+                menuItem = itemMenu
             )
         }
     ) {
@@ -112,7 +127,9 @@ fun HomeBody(navC: NavHostController? = null) {
                         onclick = {
                             navC?.navigate(route = ScreenRoute.History.name)
                         },
-                        width = sizeWidth + 100)
+                        width = sizeWidth + 100,
+                        listRecouvrementAmountOfDay = listOfRecouvrementDay
+                    )
                 }
             }
         }

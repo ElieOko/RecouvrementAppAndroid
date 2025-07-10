@@ -73,7 +73,7 @@ fun TopBarCustom(
 fun TopBarSimple(
     username: String = "elieoko",
     title : String = "Recouvrement",
-    onclickLogOut : ()->Unit = {},
+    onclickLogOut : ()-> Unit = {},
     onBackEvent : ()-> Unit = {},
     onclick :()-> Unit = {},
     menuItem :List<MenuItem> = emptyList(),
@@ -92,10 +92,6 @@ fun TopBarSimple(
         title = { Text(title) },
         actions = {
             if (isMain){
-                IconButton(onClick = {onclickLogOut()}) {
-                    Icon(painterResource(R.drawable.logout), null, modifier = Modifier.size(24.dp))
-                }
-                Space(x = 18)
                 IconButton(
                     onClick = onclick,
                     colors = IconButtonDefaults.iconButtonColors(containerColor = bagdeColor),
@@ -106,24 +102,31 @@ fun TopBarSimple(
                 ) {
                     Text(username[0].uppercaseChar().toString(), color = Color.White)
                 }
-                Space(x = 10)
+                Space(x = 18)
+                IconButton(onClick = {onclickLogOut()}) {
+                    Icon(painterResource(R.drawable.logout), null, modifier = Modifier.size(24.dp))
+                }
                 Box {
-                    IconButton({}) {
+                    IconButton({
+                        expanded = !expanded
+                    }) {
                         Icon(painterResource(R.drawable.menu), null, modifier = Modifier.size(24.dp))
                     }
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        menuItemData.forEach { option ->
+                        menuItem.forEach { menu ->
                             DropdownMenuItem(
-                                text = { Text(option) },
-                                onClick = { /* Do something... */ }
+                                text = { Text(menu.name) },
+                                onClick = {
+                                    expanded = false
+                                    menu.eventClick()
+                                }
                             )
                         }
                     }
                 }
-
             }
         }
     )

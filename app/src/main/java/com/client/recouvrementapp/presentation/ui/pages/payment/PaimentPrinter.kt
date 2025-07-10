@@ -40,7 +40,7 @@ fun PaimentPrinterBody(navC: NavHostController?= null, onBackEvent: () -> Unit =
             )
         }
     ){
-        Column(Modifier.padding(it).fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Column(Modifier.padding(it).fillMaxSize().padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
             Button(
                     onClick = {
 
