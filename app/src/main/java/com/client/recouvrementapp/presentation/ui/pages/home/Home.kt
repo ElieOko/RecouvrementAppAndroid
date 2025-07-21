@@ -15,21 +15,27 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.model.MenuItem
 import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
 import com.client.recouvrementapp.domain.model.core.Currency
+import com.client.recouvrementapp.domain.model.user.ProfilUser
+import com.client.recouvrementapp.domain.model.user.User
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouvrement
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton
@@ -41,6 +47,7 @@ import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 //import com.google.accompanist.permissions.rememberPermissionState
 //import com.google.accompanist.permissions.shouldShowRationale
 import com.partners.hdfils_recolte.presentation.ui.components.Space
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -49,10 +56,12 @@ fun Home(navC: NavHostController, isConnected: Boolean) {
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
 @Composable
 fun HomeBody(navC: NavHostController? = null) {
     val configuration = LocalConfiguration.current
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val screenWidthDp = configuration.screenWidthDp.dp
     val screenHeightDp = configuration.screenHeightDp.dp
     val size = ((screenHeightDp.value.toInt() / 2))
@@ -60,6 +69,7 @@ fun HomeBody(navC: NavHostController? = null) {
     val isShow = remember { mutableStateOf(false) }
     var titleMsg = ""
     var msg = ""
+    val user = remember { mutableStateListOf<ProfilUser?>() }
     var textPositive = "Valider"
     var textNegative = "Annuler"
     val listOfRecouvrementDay = listOf<RecouvrementAmountOfDay>(
@@ -89,71 +99,32 @@ fun HomeBody(navC: NavHostController? = null) {
     )
     var onclick : () -> Unit = {}
 
-//    val permissionsState = rememberMultiplePermissionsState(
-//        permissions = permissionsToRequest
-//    )
-//    var hasRequestedPermissions by rememberSaveable { mutableStateOf(false) }
-//    var permissionRequestCompleted by rememberSaveable { mutableStateOf(false) }
-//    var statePermission by remember { mutableStateOf(false) }
-//
-//    LaunchedEffect(hasRequestedPermissions) {
-//        if (hasRequestedPermissions) {
-//            permissionRequestCompleted = permissionsState.revokedPermissions.isNotEmpty()
-//        }
-//    }
+
     Scaffold(
         topBar = {
-            TopBarSimple(
-                onclickLogOut = {
-                    textPositive = "Oui"
-                    textNegative = "Non"
-                    msg = "Voulez-vous vraiment vous déconnectez ?"
-                    titleMsg = "Information"
-                    isShow.value = true
-                    onclick = onLogOutEvent
-                },
-                menuItem = itemMenu
-            )
+            if (user.isNotEmpty()){
+                TopBarSimple(
+                    onclickLogOut = {
+                        textPositive = "Oui"
+                        textNegative = "Non"
+                        msg = "Voulez-vous vraiment vous déconnectez ?"
+                        titleMsg = "Information"
+                        isShow.value = true
+                        onclick = onLogOutEvent
+                    },
+                    menuItem = itemMenu,
+                    username = user[0]?.profile?.displayName
+                )
+            }
+
         }
     ) {
+        scope.launch {
+            StoreData(context).getUser.collect { u ->
+                user.add(u)
+            }
+        }
         Column(Modifier.padding(it)) {
-//            when {
-//                permissionsState.allPermissionsGranted -> {
-//                    statePermission = false
-//                }
-//                permissionsState.shouldShowRationale->{
-//                    msg = "Permissions denied. Please enable them in app settings to proceed."
-//                    titleMsg = "Permission"
-//                    onclick = {
-//                        textPositive = "Autoriser"
-//                        permissionsState.launchMultiplePermissionRequest()
-//                        statePermission = false
-//                    }
-//                }
-//                else ->{
-//                    if (permissionRequestCompleted){
-//                        onclick = {
-//                            titleMsg = "Permission"
-//                            msg = "Permissions denied. Please enable them in app settings to proceed."
-//                            statePermission = false
-//                        }
-//                    }
-//                    else{
-//                        if (!hasRequestedPermissions){
-//                            statePermission = true
-//                            titleMsg = "Permission"
-//                            msg = "Notification && Bleutooth permission is required to use this feature."
-//                            textPositive = "Autoriser"
-//                            onclick = {
-//                                permissionsState.launchMultiplePermissionRequest()
-//                                hasRequestedPermissions = true
-//                                statePermission = false
-//                            }
-//                        }
-//
-//                    }
-//                }
-//            }
             Column(Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Space(y = 150)
                 ImageIconButton(onclick = {
@@ -162,6 +133,7 @@ fun HomeBody(navC: NavHostController? = null) {
                 Space(y = 10)
                 Text("Appuyez pour recouvrir sur +", color = Color.Black, fontSize = 18.sp)
             }
+
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -204,20 +176,7 @@ fun HomeBody(navC: NavHostController? = null) {
                 onConfirmation = onclick
             )
         }
-//        if (statePermission){
-//            PermissionDialog(
-//            textPositive = "Autorisé",
-//                onOkClick = onclick,
-//                dialogText = msg,
-//            )
-//        }
-//        if (statePermission){
-//            PermissionDialog(
-//                textPositive = "Autorisé",
-//                onOkClick = onclick,
-//                dialogText = msg,
-//            )
-//        }
+
     }
 }
 
