@@ -46,7 +46,6 @@ dependencies {
     implementation(files("libs/core.jar"))
     implementation(files("libs/usbsdk.jar"))
     implementation(files("libs/qsprintersdk.jar"))
-    val room_version = "2.7.2"
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -56,6 +55,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    //icon
+    implementation(libs.androidx.material.icons.extended)
     //constraint-layout
     implementation(libs.androidx.constraintlayout.compose)
     //navigation
