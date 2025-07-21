@@ -30,8 +30,8 @@ fun MAlertDialog(
     onConfirmation: () -> Unit = {},
     dialogTitle: String = "Success",
     dialogText: String = "Magique",
-    textPositive : String = "Valider",
-    textNegative : String = "Annuler",
+    textPositive : String = "Ok",
+    textNegative : String = "",
 ) {
     val rainbowColorsBrush = remember {
         Brush.sweepGradient(
