@@ -70,6 +70,7 @@ fun MAlertDialog(
             TextButton(
                 onClick = {
                     onConfirmation()
+                    onDismissRequest()
                 }
             ) {
                 Text(textPositive)
