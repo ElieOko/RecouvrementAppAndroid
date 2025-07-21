@@ -19,8 +19,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -67,6 +69,7 @@ fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected
     AuthLoginBody(navC,onBackEvent,isConnected)
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthLoginBody(
     navC: NavHostController? = null,
@@ -281,7 +284,13 @@ fun AuthLoginBody(
                             disabledContainerColor = Color(0xFF080624)
                         )
                     ) {
-                        Text(text = if(isActive) "Se connecter" else "Chargement...", fontSize = 16.sp, color = Color.White)
+                        if(isActive)
+                            Text(text = "Se connecter", fontSize = 16.sp, color = Color.White)
+                        else
+                            LinearWavyProgressIndicator(
+                                color = Color.White,
+                                trackColor = Color.White,
+                            )
                     }
                     Space(y=20)
                     if(isShow){
