@@ -1,4 +1,4 @@
-package com.client.recouvrementapp.domain.model.user
+package com.client.recouvrementapp.domain.model.core.user
 
 import kotlinx.serialization.Serializable
 

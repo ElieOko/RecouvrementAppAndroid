@@ -1,4 +1,4 @@
-package com.client.recouvrementapp.domain.model.printer
+package com.client.recouvrementapp.domain.model.core.printer
 
 import android.bluetooth.BluetoothDevice
 import android.os.Handler

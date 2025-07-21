@@ -1,4 +1,4 @@
-package com.client.recouvrementapp.domain.model.user
+package com.client.recouvrementapp.domain.model.core.user
 
 import kotlinx.serialization.Serializable
 
@@ -7,6 +7,7 @@ data class User(
     val id : Int,
     val displayName : String
 )
+
 
 @Serializable
 data class ProfilUser(

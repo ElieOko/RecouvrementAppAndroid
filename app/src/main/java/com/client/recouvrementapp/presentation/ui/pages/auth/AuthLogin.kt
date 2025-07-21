@@ -53,9 +53,9 @@ import com.client.recouvrementapp.data.remote.KtorClientAndroid
 import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.model.ResponseHttpRequest
 import com.client.recouvrementapp.domain.model.ResponseHttpRequestAuth
-import com.client.recouvrementapp.domain.model.user.ProfilUser
-import com.client.recouvrementapp.domain.model.user.User
-import com.client.recouvrementapp.domain.model.user.UserAuth
+import com.client.recouvrementapp.domain.model.core.user.ProfilUser
+import com.client.recouvrementapp.domain.model.core.user.User
+import com.client.recouvrementapp.domain.model.core.user.UserAuth
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgroundShapes
 import com.client.recouvrementapp.presentation.components.elements.MAlertDialog

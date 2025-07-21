@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.client.recouvrementapp.core.permissions.PermissionAndroid.BLUETOOTH_CONNECT
-import com.client.recouvrementapp.domain.model.printer.BluetoothPrinter
+import com.client.recouvrementapp.domain.model.core.printer.BluetoothPrinter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

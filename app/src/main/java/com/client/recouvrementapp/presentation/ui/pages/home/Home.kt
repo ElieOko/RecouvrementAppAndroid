@@ -34,8 +34,7 @@ import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.model.MenuItem
 import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
 import com.client.recouvrementapp.domain.model.core.Currency
-import com.client.recouvrementapp.domain.model.user.ProfilUser
-import com.client.recouvrementapp.domain.model.user.User
+import com.client.recouvrementapp.domain.model.core.user.ProfilUser
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouvrement
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton

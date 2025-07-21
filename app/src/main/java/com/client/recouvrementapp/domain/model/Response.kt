@@ -1,6 +1,6 @@
 package com.client.recouvrementapp.domain.model
 
-import com.client.recouvrementapp.domain.model.user.User
+import com.client.recouvrementapp.domain.model.core.user.User
 import kotlinx.serialization.Serializable
 
 @Serializable
