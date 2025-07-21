@@ -71,7 +71,7 @@ fun TopBarCustom(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBarSimple(
-    username: String = "elieoko",
+    username: String? = "elieoko",
     title : String = "Recouvrement",
     onclickLogOut : ()-> Unit = {},
     onBackEvent : ()-> Unit = {},
@@ -100,7 +100,7 @@ fun TopBarSimple(
                         shape = CircleShape
                     )
                 ) {
-                    Text(username[0].uppercaseChar().toString(), color = Color.White)
+                    Text(username?.get(0)?.uppercaseChar().toString(), color = Color.White)
                 }
                 Space(x = 18)
                 IconButton(onClick = {onclickLogOut()}) {
