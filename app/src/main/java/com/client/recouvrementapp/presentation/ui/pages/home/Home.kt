@@ -1,6 +1,8 @@
 package com.client.recouvrementapp.presentation.ui.pages.home
 
 import android.annotation.SuppressLint
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.absoluteOffset
@@ -33,13 +35,20 @@ import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouv
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton
 import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
+//import com.google.accompanist.permissions.ExperimentalPermissionsApi
+//import com.google.accompanist.permissions.PermissionStatus
+//import com.google.accompanist.permissions.rememberMultiplePermissionsState
+//import com.google.accompanist.permissions.rememberPermissionState
+//import com.google.accompanist.permissions.shouldShowRationale
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun Home(navC: NavHostController) {
+fun Home(navC: NavHostController, isConnected: Boolean) {
     HomeBody(navC)
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HomeBody(navC: NavHostController? = null) {
@@ -79,6 +88,19 @@ fun HomeBody(navC: NavHostController? = null) {
         })
     )
     var onclick : () -> Unit = {}
+
+//    val permissionsState = rememberMultiplePermissionsState(
+//        permissions = permissionsToRequest
+//    )
+//    var hasRequestedPermissions by rememberSaveable { mutableStateOf(false) }
+//    var permissionRequestCompleted by rememberSaveable { mutableStateOf(false) }
+//    var statePermission by remember { mutableStateOf(false) }
+//
+//    LaunchedEffect(hasRequestedPermissions) {
+//        if (hasRequestedPermissions) {
+//            permissionRequestCompleted = permissionsState.revokedPermissions.isNotEmpty()
+//        }
+//    }
     Scaffold(
         topBar = {
             TopBarSimple(
@@ -95,6 +117,43 @@ fun HomeBody(navC: NavHostController? = null) {
         }
     ) {
         Column(Modifier.padding(it)) {
+//            when {
+//                permissionsState.allPermissionsGranted -> {
+//                    statePermission = false
+//                }
+//                permissionsState.shouldShowRationale->{
+//                    msg = "Permissions denied. Please enable them in app settings to proceed."
+//                    titleMsg = "Permission"
+//                    onclick = {
+//                        textPositive = "Autoriser"
+//                        permissionsState.launchMultiplePermissionRequest()
+//                        statePermission = false
+//                    }
+//                }
+//                else ->{
+//                    if (permissionRequestCompleted){
+//                        onclick = {
+//                            titleMsg = "Permission"
+//                            msg = "Permissions denied. Please enable them in app settings to proceed."
+//                            statePermission = false
+//                        }
+//                    }
+//                    else{
+//                        if (!hasRequestedPermissions){
+//                            statePermission = true
+//                            titleMsg = "Permission"
+//                            msg = "Notification && Bleutooth permission is required to use this feature."
+//                            textPositive = "Autoriser"
+//                            onclick = {
+//                                permissionsState.launchMultiplePermissionRequest()
+//                                hasRequestedPermissions = true
+//                                statePermission = false
+//                            }
+//                        }
+//
+//                    }
+//                }
+//            }
             Column(Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Space(y = 150)
                 ImageIconButton(onclick = {
@@ -109,7 +168,6 @@ fun HomeBody(navC: NavHostController? = null) {
                 verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier.fillMaxSize()
             ) {
-
                 ConstraintLayout {
                     // Create references for the composables to constrain
                     val (card, buttonLink) = createRefs()
@@ -132,6 +190,7 @@ fun HomeBody(navC: NavHostController? = null) {
                     )
                 }
             }
+
         }
         if(isShow.value){
             MAlertDialog(
@@ -145,9 +204,24 @@ fun HomeBody(navC: NavHostController? = null) {
                 onConfirmation = onclick
             )
         }
+//        if (statePermission){
+//            PermissionDialog(
+//            textPositive = "Autorisé",
+//                onOkClick = onclick,
+//                dialogText = msg,
+//            )
+//        }
+//        if (statePermission){
+//            PermissionDialog(
+//                textPositive = "Autorisé",
+//                onOkClick = onclick,
+//                dialogText = msg,
+//            )
+//        }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Preview(showBackground = true)
 @Composable
 fun HomePreview(){

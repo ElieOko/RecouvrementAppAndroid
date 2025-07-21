@@ -30,7 +30,7 @@ import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.client.recouvrementapp.presentation.ui.theme.wsColor
 
 @Composable
-fun HistoryRecouvrement(navC: NavHostController, onBackEvent: () -> Unit = {}) {
+fun HistoryRecouvrement(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected: Boolean) {
     HistoryRecouvrementBody(navC,onBackEvent)
 }
 

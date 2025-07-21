@@ -51,7 +51,7 @@ import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgr
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 
 @Composable
-fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}) {
+fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected: Boolean) {
     AuthLoginBody(navC,onBackEvent)
 }
 
@@ -183,6 +183,14 @@ fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {})
                     Space(y=20)
                     Button(
                         onClick = {
+                            if(password.isEmpty()){
+                                isShow = true
+                                msg = "Le password n'est pas renseigner"
+                            }
+                            if(username.isEmpty()){
+                                isShow = true
+                                msg = "Le nom d'utilisateur n'est pas renseigner"
+                            }
                             navC?.navigate(route = ScreenRoute.Home.name){
                                 popUpTo(navC.graph.id){
                                     inclusive = true

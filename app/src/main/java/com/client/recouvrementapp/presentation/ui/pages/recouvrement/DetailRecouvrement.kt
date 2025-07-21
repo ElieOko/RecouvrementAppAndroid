@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 
 @Composable
-fun DetailRecouvrement(navC: NavHostController, onBackEvent: () -> Unit) {
+fun DetailRecouvrement(navC: NavHostController, onBackEvent: () -> Unit, isConnected: Boolean) {
     DetailRecouvrementBody(navC,onBackEvent)
 }
 
