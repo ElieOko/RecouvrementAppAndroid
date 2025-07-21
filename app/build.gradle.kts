@@ -43,6 +43,9 @@ android {
 
 dependencies {
     implementation(files("libs/Printer7002.jar"))
+    implementation(files("libs/core.jar"))
+    implementation(files("libs/usbsdk.jar"))
+    implementation(files("libs/qsprintersdk.jar"))
     val room_version = "2.7.2"
 
     implementation(libs.androidx.core.ktx)
@@ -85,7 +88,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.room.ktx)
-
+    // Accompanist Permissions
+    implementation(libs.accompanist.permissions)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
