@@ -46,17 +46,33 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
 import com.client.recouvrementapp.core.AsteriskPasswordVisualTransformation
+import com.client.recouvrementapp.data.local.Constantes.Companion.authConnectRoute
+import com.client.recouvrementapp.data.remote.KtorClientAndroid
+import com.client.recouvrementapp.data.shared.StoreData
+import com.client.recouvrementapp.domain.model.ResponseHttpRequest
+import com.client.recouvrementapp.domain.model.ResponseHttpRequestAuth
+import com.client.recouvrementapp.domain.model.user.ProfilUser
+import com.client.recouvrementapp.domain.model.user.User
+import com.client.recouvrementapp.domain.model.user.UserAuth
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgroundShapes
+import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
 import com.partners.hdfils_recolte.presentation.ui.components.Space
+import io.ktor.client.call.body
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected: Boolean) {
-    AuthLoginBody(navC,onBackEvent)
+    AuthLoginBody(navC,onBackEvent,isConnected)
 }
 
 @Composable
-fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {}) {
+fun AuthLoginBody(
+    navC: NavHostController? = null,
+    onBackEvent: () -> Unit = {},
+    isConnected: Boolean = true
+) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -64,7 +80,7 @@ fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {})
     var password by remember { mutableStateOf("") }
     var isAnimating by remember { mutableStateOf(false) }
     var isActive by remember { mutableStateOf(true) }
-    var msg by remember { mutableStateOf("") }
+    var msg: String? by remember { mutableStateOf("") }
     var titleMsg by remember { mutableStateOf("Erreur") }
     var isShow by remember { mutableStateOf(false) }
     val isVisible = remember { mutableStateOf(false) }
@@ -81,7 +97,6 @@ fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {})
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            //0xFF3E4EBD
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -183,20 +198,82 @@ fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {})
                     Space(y=20)
                     Button(
                         onClick = {
-                            if(password.isEmpty()){
-                                isShow = true
-                                msg = "Le password n'est pas renseigner"
-                            }
-                            if(username.isEmpty()){
-                                isShow = true
-                                msg = "Le nom d'utilisateur n'est pas renseigner"
-                            }
-                            navC?.navigate(route = ScreenRoute.Home.name){
-                                popUpTo(navC.graph.id){
-                                    inclusive = true
+                            when(isConnected){
+                                true ->{
+                                    if(password.isEmpty()){
+                                        isShow = true
+                                        msg = "Le mot de passe n'est pas renseigné"
+                                        titleMsg = "Champs vide"
+                                    }
+                                    if(username.isEmpty()){
+                                        isShow = true
+                                        msg = "Le nom d'utilisateur n'est pas renseigné"
+                                        titleMsg = "Champs vide"
+                                    }
+                                    if (username.isNotEmpty() && password.isNotEmpty()){
+                                        coroutineScope.launch {
+                                            isActive = false
+                                            delay(3000)
+                                            val response = KtorClientAndroid().postData(authConnectRoute,
+                                                UserAuth(username,password)
+                                            )
+                                            val status = response.status.value
+                                            when(status){
+                                                in 200..299 ->{
+                                                    isActive = true
+                                                    val res = response.body<ResponseHttpRequestAuth>()
+                                                    scope.launch {
+                                                        StoreData(context).getUser.collect {
+                                                            if(it != null){
+                                                                if (it.profile.id == res.profile.id){
+                                                                   //
+                                                                }
+                                                                else{
+                                                                    StoreData(context).delete()
+                                                                }
+                                                            }
+                                                        }
+                                                        StoreData(context).saveUser(
+                                                            ProfilUser(
+                                                                token_type = res.token_type,
+                                                                access_token = res.access_token,
+                                                                profile = User(res.profile.id,
+                                                                    res.profile.displayName)
+                                                            )
+                                                        )
+                                                    }
+                                                    navC?.navigate(route = ScreenRoute.Home.name){
+                                                        popUpTo(navC.graph.id){
+                                                            inclusive = true
+                                                        }
+                                                    }
+                                                }
+                                                in 500..599 ->{
+                                                    isActive = true
+                                                    titleMsg = "Erreur serveur"
+                                                    msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                    isShow = true
+                                                }
+                                                in 400..499 ->{
+                                                    isActive = true
+                                                    val res = response.body<ResponseHttpRequest>()
+                                                    titleMsg = "erreur"
+                                                    msg = res.message
+                                                    isShow = true
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                                else -> {
+                                    msg = "Vous n'êtes pas connecté veuillez vérifier votre connexion !!!"
+                                    titleMsg = "Problème de connexion"
+                                    isShow = true
                                 }
                             }
                         },
+            //0xFF3E4EBD
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor =  Color(0xFF15D77D),
@@ -207,6 +284,15 @@ fun AuthLoginBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {})
                         Text(text = if(isActive) "Se connecter" else "Chargement...", fontSize = 16.sp, color = Color.White)
                     }
                     Space(y=20)
+                    if(isShow){
+                        MAlertDialog(
+                            dialogTitle = titleMsg,
+                            dialogText =  "$msg",
+                            onDismissRequest = {
+                                isShow = false
+                            }
+                        )
+                    }
                 }
             }
         }
