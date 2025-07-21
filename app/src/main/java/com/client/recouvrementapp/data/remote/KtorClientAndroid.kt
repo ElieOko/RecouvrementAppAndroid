@@ -73,7 +73,7 @@ class KtorClientAndroid {
             setBody(data) // Serialize the body
         }
     }
-    suspend fun getData(route: String): HttpResponse {
+    suspend fun getData(route: String, token : String = "", typeToken : String = "Bearer"): HttpResponse {
         return httpClientAndroid.get {
             url {
                 protocol = if (IS_PROD) URLProtocol.HTTPS else URLProtocol.HTTP
@@ -81,7 +81,7 @@ class KtorClientAndroid {
                 encodedPath = route
             }
             headers {
-                append(HttpHeaders.Authorization, TokenLocal)
+                append(HttpHeaders.Authorization, "$typeToken $token")
             }
         }
     }
