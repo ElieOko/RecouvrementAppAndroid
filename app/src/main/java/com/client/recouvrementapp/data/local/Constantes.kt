@@ -7,9 +7,9 @@ import java.util.Locale
 class Constantes {
     companion object {
         const val BASE_URL = "https://dummyjson.com/"
-        const val HOST_DEV = "192.168.1.84:8000/api"
+        const val HOST_DEV = "213.136.74.84:8090"
         const val HOST_PROD = "custom.cadeauparfait1.com/api"
-        const val IS_PROD = true
+        const val IS_PROD = false
         const val TokenLocal = ""
         const val subscriptionId = 10
         const val cotisationOrdinaireId = 12
@@ -19,6 +19,7 @@ class Constantes {
             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             return formatter.format(Date(millis))
         }
+        const val authConnectRoute = "auth/connect"
     }
 
 }
