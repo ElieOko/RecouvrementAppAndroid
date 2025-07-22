@@ -1,33 +1,34 @@
 [versions]
 accompanistPermissions = "0.37.3"
-agp = "8.11.0"
-kotlin = "2.0.21"
+agp = "8.11.1"
+kotlin = "2.2.0"
 coreKtx = "1.16.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.9.1"
+ktorClientAuth = "3.2.2"
+lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
-composeBom = "2024.09.00"
+composeBom = "2025.07.00"
 # navigation
-navigationCompose = "2.9.1"
+navigationCompose = "2.9.2"
 # constraint-layout
 constraintlayoutCompose = "1.1.1"
 # ktor
-ktorClientAndroid = "2.3.12"
-ktorClientContentNegotiation = "2.3.12"
-ktorClientCore = "2.3.12"
-kotlinxSerializationJson = "1.5.1"
-ktorClientLoggingJvm = "2.3.10"
-ktorClientSerialization = "2.3.10"
-ktorSerializationKotlinxJson = "2.3.10"
+ktorClientAndroid = "3.2.2"
+ktorClientContentNegotiation = "3.2.2"
+ktorClientCore = "3.2.2"
+kotlinxSerializationJson = "1.9.0"
+ktorClientLoggingJvm = "3.2.2"
+ktorClientSerialization = "3.2.2"
+ktorSerializationKotlinxJson = "3.2.2"
 # coroutine
-kotlinxCoroutinesAndroid = "1.8.0"
-kotlinxCoroutinesCore = "1.8.0"
-kotlinxCoroutinesPlayServices = "1.7.3"
+kotlinxCoroutinesAndroid = "1.10.2"
+kotlinxCoroutinesCore = "1.10.2"
+kotlinxCoroutinesPlayServices = "1.10.2"
 # lifecycle
 lifecycleExtensions = "2.2.0"
-lifecycleRuntimeKtxVersion = "2.8.7"
+lifecycleRuntimeKtxVersion = "2.9.2"
 # room
 roomRuntime = "2.7.2"
 # other
@@ -75,6 +76,7 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
 # ktor
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
+ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktorClientAuth" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorClientContentNegotiation" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorClientCore" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
