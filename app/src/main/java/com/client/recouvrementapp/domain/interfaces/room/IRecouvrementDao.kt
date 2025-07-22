@@ -4,13 +4,20 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
+import com.client.recouvrementapp.domain.model.room.RecouvrementWithRelations
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface IRecouvrementDao {
-    @Query("SELECT * FROM TRecouvrement")
-    fun getAll(): Flow<List<RecouvrementModel>>
+    @Transaction
+    @Query("SELECT * FROM TRecouvrement WHERE user_id LIKE :userId")
+    fun getAll(userId : Int): Flow<List<RecouvrementWithRelations>>
+
+    @Transaction
+    @Query("SELECT * FROM TRecouvrement WHERE date_payment LIKE :dateCurrent AND currency_id LIKE :currencyId")
+    fun getRecouvrementToDay(dateCurrent: String, currencyId : Int): Flow<List<RecouvrementWithRelations>>
 
     @Insert
     fun insertAll(vararg recouvrements: RecouvrementModel)
