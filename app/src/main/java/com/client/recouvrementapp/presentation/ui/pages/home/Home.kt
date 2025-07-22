@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.data.local.Constantes.Companion.currencyRoute
+import com.client.recouvrementapp.data.local.Constantes.Companion.paymentMethodRoute
 import com.client.recouvrementapp.data.remote.requestServer
 import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.model.KeyValue
@@ -97,7 +98,6 @@ fun HomeBody(navC: NavHostController? = null) {
         ),
     )
 
-
     val onLogOutEvent :() -> Unit = {
         isShow.value = false
         navC?.navigate(route = ScreenRoute.Login.name){
@@ -113,23 +113,33 @@ fun HomeBody(navC: NavHostController? = null) {
     )
     var onclick : () -> Unit = {}
 
-    //LaunchedEffect(Unit) {
-//        val response =
-//        responseText = response
     CoroutineScope(Dispatchers.IO).launch {
         val responseCurrency = requestServer(
             context = context,
             route = currencyRoute
         )
+        val responseTypePaymentMethod = requestServer(
+            context = context,
+            route = paymentMethodRoute
+        )
         Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
-        //Toast.makeText(context,"test->${responseCurrency.status.value}", Toast.LENGTH_SHORT).show()
         val status = responseCurrency.status.value
         when(status){
             in 200..299 ->{
                 //
                 val data : ArrayList<KeyValue> = responseCurrency.body()
-               // val res = responseCurrency.body<Array<KeyValue>>()
-                //Toast.makeText(context,res[0].name, Toast.LENGTH_SHORT).show()
+                Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+
+            }
+            in 400..499->{
+
+            }
+        }
+
+        val status2 = responseTypePaymentMethod.status.value
+        when(status2){
+            in 200..299 ->{
+                val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
                 Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
             }
             in 400..499->{
@@ -138,18 +148,6 @@ fun HomeBody(navC: NavHostController? = null) {
         }
     }
 
-//    }
-//        scope.launch {
-//
-//        }
-//        scope.launch {
-//            val responseMethodPayment = requestServer(
-//                context = context,
-//                route = ""
-//            )
-//        }
-
-   // }
     Scaffold(
         topBar = {
             if (user.isNotEmpty()){
