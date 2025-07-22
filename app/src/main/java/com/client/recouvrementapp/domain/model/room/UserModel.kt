@@ -4,9 +4,12 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(
+    tableName = "TUser"
+)
 data class UserModel(
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "user_id", ) val id: Int,
     @ColumnInfo(name = "display_name") val displayName: String?,
+    @ColumnInfo(name = "username") val username: String?,
 )

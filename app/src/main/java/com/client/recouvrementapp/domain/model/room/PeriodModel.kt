@@ -4,7 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(
+    tableName = "TPeriod"
+)
 data class PeriodModel(
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "period_id") val id : Int = 1,

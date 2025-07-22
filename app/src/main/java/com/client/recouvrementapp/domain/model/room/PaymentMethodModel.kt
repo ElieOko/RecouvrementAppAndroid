@@ -4,7 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(
+    tableName = "TPaymentMethod"
+)
 data class PaymentMethodModel(
     @PrimaryKey val uid: Int,
     @ColumnInfo(name = "payment_method_id") val id : Int = 0,
