@@ -20,6 +20,8 @@ class Constantes {
             return formatter.format(Date(millis))
         }
         const val authConnectRoute = "auth/connect"
+        const val currencyRoute = "api/currencies/availablecurrencies"
+        const val paymentMethodRoute = "api/paymentmethods/availablepaymentmethods"
     }
 
 }

@@ -14,3 +14,9 @@ data class ResponseHttpRequestAuth(
 data class ResponseHttpRequest(
     val message : String?
 )
+
+@Serializable
+data class KeyValue(
+    val id : Int,
+    val name : String
+)
