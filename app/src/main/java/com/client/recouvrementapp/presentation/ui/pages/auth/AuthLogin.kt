@@ -1,5 +1,6 @@
 package com.client.recouvrementapp.presentation.ui.pages.auth
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -201,82 +202,82 @@ fun AuthLoginBody(
                     Space(y=20)
                     Button(
                         onClick = {
-                            when(isConnected){
-                                true ->{
-                                    if(password.isEmpty()){
-                                        isShow = true
-                                        msg = "Le mot de passe n'est pas renseigné"
-                                        titleMsg = "Champs vide"
-                                    }
-                                    if(username.isEmpty()){
-                                        isShow = true
-                                        msg = "Le nom d'utilisateur n'est pas renseigné"
-                                        titleMsg = "Champs vide"
-                                    }
-                                    if (username.isNotEmpty() && password.isNotEmpty()){
-                                        coroutineScope.launch {
-                                            isActive = false
-                                            delay(3000)
-                                            val response = KtorClientAndroid().postData(authConnectRoute,
-                                                UserAuth(username,password)
-                                            )
-                                            val status = response.status.value
-                                            when(status){
-                                                in 200..299 ->{
-                                                    isActive = true
-                                                    val res = response.body<ResponseHttpRequestAuth>()
-                                                    scope.launch {
-                                                        StoreData(context).getUser.collect {
-                                                            if(it != null){
-                                                                if (it.profile.id == res.profile.id){
-                                                                   //
-                                                                }
-                                                                else{
-                                                                    StoreData(context).delete()
-                                                                }
-                                                            }
-                                                        }
-                                                        StoreData(context).saveUser(
-                                                            ProfilUser(
+                            try {
+                                when(isConnected){
+                                    true ->{
+                                        if(password.isEmpty()){
+                                            isShow = true
+                                            msg = "Le mot de passe n'est pas renseigné"
+                                            titleMsg = "Champs vide"
+                                        }
+                                        if(username.isEmpty()){
+                                            isShow = true
+                                            msg = "Le nom d'utilisateur n'est pas renseigné"
+                                            titleMsg = "Champs vide"
+                                        }
+                                        if (username.isNotEmpty() && password.isNotEmpty()){
+
+                                            coroutineScope.launch {
+                                                isActive = false
+                                                delay(3000)
+                                                Log.e("connect server->","${UserAuth(username,password)}")
+                                                val response = KtorClientAndroid().postData(authConnectRoute,
+                                                    UserAuth(username =username,password = password, grant_type = "password")
+                                                )
+                                                val status = response.status.value
+                                                when(status){
+                                                    in 200..299 ->{
+                                                        isActive = true
+                                                        val res = response.body<ResponseHttpRequestAuth>()
+                                                        Log.e("data response ->","$res")
+                                                        scope.launch {
+                                                            //StoreData(context).delete()
+                                                            val userT = ProfilUser(
                                                                 token_type = res.token_type,
                                                                 access_token = res.access_token,
                                                                 profile = User(res.profile.id,
-                                                                    res.profile.displayName)
+                                                                    res.profile.displayName,
+                                                                    res.profile.username
+                                                                )
                                                             )
-                                                        )
-                                                    }
-                                                    navC?.navigate(route = ScreenRoute.Home.name){
-                                                        popUpTo(navC.graph.id){
-                                                            inclusive = true
+                                                            Log.e("Call response ->***","$userT")
+                                                            StoreData(context).saveUser(userT)
+                                                        }
+                                                        navC?.navigate(route = ScreenRoute.Home.name){
+                                                            popUpTo(navC.graph.id){
+                                                                inclusive = true
+                                                            }
                                                         }
                                                     }
-                                                }
-                                                in 500..599 ->{
-                                                    isActive = true
-                                                    titleMsg = "Erreur serveur"
-                                                    msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
-                                                    isShow = true
-                                                }
-                                                in 400..499 ->{
-                                                    isActive = true
-                                                    val res = response.body<ResponseHttpRequest>()
-                                                    titleMsg = "erreur"
-                                                    msg = res.message
-                                                    isShow = true
+                                                    in 500..599 ->{
+                                                        isActive = true
+                                                        titleMsg = "Erreur serveur"
+                                                        msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                        isShow = true
+                                                    }
+                                                    in 400..499 ->{
+                                                        isActive = true
+                                                        val res = response.body<ResponseHttpRequest>()
+                                                        titleMsg = "erreur"
+                                                        msg = res.message
+                                                        isShow = true
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-
-                                }
-                                else -> {
-                                    msg = "Vous n'êtes pas connecté veuillez vérifier votre connexion !!!"
-                                    titleMsg = "Problème de connexion"
-                                    isShow = true
+                                    else -> {
+                                        msg = "Vous n'êtes pas connecté veuillez vérifier votre connexion !!!"
+                                        titleMsg = "Problème de connexion"
+                                        isShow = true
+                                    }
                                 }
                             }
+                            catch (e : Exception){
+                                Log.e("error ->",e.message.toString())
+                            }
+
                         },
-            //0xFF3E4EBD
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor =  Color(0xFF15D77D),
