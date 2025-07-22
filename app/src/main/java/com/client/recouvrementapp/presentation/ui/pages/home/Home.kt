@@ -2,6 +2,8 @@ package com.client.recouvrementapp.presentation.ui.pages.home
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import com.client.recouvrementapp.data.local.Constantes.Companion.currencyRoute
+import com.client.recouvrementapp.data.remote.requestServer
 import com.client.recouvrementapp.data.shared.StoreData
+import com.client.recouvrementapp.domain.model.KeyValue
 import com.client.recouvrementapp.domain.model.MenuItem
 import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
 import com.client.recouvrementapp.domain.model.core.Currency
@@ -46,7 +52,13 @@ import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 //import com.google.accompanist.permissions.rememberPermissionState
 //import com.google.accompanist.permissions.shouldShowRationale
 import com.partners.hdfils_recolte.presentation.ui.components.Space
+import io.ktor.client.call.body
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ArraySerializer
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -55,7 +67,9 @@ fun Home(navC: NavHostController, isConnected: Boolean) {
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "CoroutineCreationDuringComposition",
+    "ConfigurationScreenWidthHeight"
+)
 @Composable
 fun HomeBody(navC: NavHostController? = null) {
     val configuration = LocalConfiguration.current
@@ -69,6 +83,7 @@ fun HomeBody(navC: NavHostController? = null) {
     var titleMsg = ""
     var msg = ""
     val user = remember { mutableStateListOf<ProfilUser?>() }
+    val channelUser = Channel<ProfilUser>()
     var textPositive = "Valider"
     var textNegative = "Annuler"
     val listOfRecouvrementDay = listOf<RecouvrementAmountOfDay>(
@@ -98,7 +113,43 @@ fun HomeBody(navC: NavHostController? = null) {
     )
     var onclick : () -> Unit = {}
 
+    //LaunchedEffect(Unit) {
+//        val response =
+//        responseText = response
+    CoroutineScope(Dispatchers.IO).launch {
+        val responseCurrency = requestServer(
+            context = context,
+            route = currencyRoute
+        )
+        Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
+        //Toast.makeText(context,"test->${responseCurrency.status.value}", Toast.LENGTH_SHORT).show()
+        val status = responseCurrency.status.value
+        when(status){
+            in 200..299 ->{
+                //
+                val data : ArrayList<KeyValue> = responseCurrency.body()
+               // val res = responseCurrency.body<Array<KeyValue>>()
+                //Toast.makeText(context,res[0].name, Toast.LENGTH_SHORT).show()
+                Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+            }
+            in 400..499->{
 
+            }
+        }
+    }
+
+//    }
+//        scope.launch {
+//
+//        }
+//        scope.launch {
+//            val responseMethodPayment = requestServer(
+//                context = context,
+//                route = ""
+//            )
+//        }
+
+   // }
     Scaffold(
         topBar = {
             if (user.isNotEmpty()){
@@ -112,17 +163,42 @@ fun HomeBody(navC: NavHostController? = null) {
                         onclick = onLogOutEvent
                     },
                     menuItem = itemMenu,
-                    username = user[0]?.profile?.displayName
+                    username = user[0]?.profile?.username
                 )
             }
-
         }
     ) {
         scope.launch {
             StoreData(context).getUser.collect { u ->
+               // channelUser.send(u)
                 user.add(u)
             }
+//            val u = channelUser.receive()
+//            user.add(u)
         }
+        //CoroutineScope(Dispatchers.IO)
+        scope.launch {
+//            val responseCurrency = requestServer(
+//                context = context,
+//                route = currencyRoute
+//            )
+            Log.e("REQUEST->>>>>>>>>>>>>>>>","Elie Oko")
+           // Toast.makeText(context,"test->${responseCurrency.status.value}", Toast.LENGTH_SHORT).show()
+        }
+
+
+//           // Toast.makeText(context,"test->${responseCurrency.status.value}", Toast.LENGTH_SHORT).show()
+////            when(responseCurrency.status.value){
+////                in 200..299 ->{
+////                    //
+////                    val res = responseCurrency.body<Array<KeyValue>>()
+////                    Toast.makeText(context,res[0].name, Toast.LENGTH_SHORT).show()
+////                }
+////                in 400..499->{
+////
+////                }
+////            }
+//        }
         Column(Modifier.padding(it)) {
             Column(Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Space(y = 150)
@@ -132,8 +208,6 @@ fun HomeBody(navC: NavHostController? = null) {
                 Space(y = 10)
                 Text("Appuyez pour recouvrir sur +", color = Color.Black, fontSize = 18.sp)
             }
-
-
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom,
@@ -175,7 +249,6 @@ fun HomeBody(navC: NavHostController? = null) {
                 onConfirmation = onclick
             )
         }
-
     }
 }
 
