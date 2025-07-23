@@ -6,9 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
-import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.repository.room.PaymentMethodRepository
-import com.client.recouvrementapp.domain.repository.room.UserRepository
 import kotlinx.coroutines.launch
 
 class PaymentMethodViewModel(private val repository: PaymentMethodRepository) : ViewModel() {

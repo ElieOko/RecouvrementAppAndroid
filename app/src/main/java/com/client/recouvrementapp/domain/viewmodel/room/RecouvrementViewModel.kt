@@ -7,9 +7,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
 import com.client.recouvrementapp.domain.model.room.RecouvrementWithRelations
-import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.repository.room.RecouvrementRepository
-import com.client.recouvrementapp.domain.repository.room.UserRepository
 import kotlinx.coroutines.launch
 
 class RecouvrementViewModel(private val repository: RecouvrementRepository) : ViewModel() {

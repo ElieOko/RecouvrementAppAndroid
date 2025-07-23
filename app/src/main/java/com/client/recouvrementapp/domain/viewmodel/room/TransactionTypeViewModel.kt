@@ -5,11 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.client.recouvrementapp.domain.model.room.PeriodModel
 import com.client.recouvrementapp.domain.model.room.TransactionTypeModel
-import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.repository.room.TransactionTypeRepository
-import com.client.recouvrementapp.domain.repository.room.UserRepository
 import kotlinx.coroutines.launch
 
 class TransactionTypeViewModel(private val repository: TransactionTypeRepository) : ViewModel() {

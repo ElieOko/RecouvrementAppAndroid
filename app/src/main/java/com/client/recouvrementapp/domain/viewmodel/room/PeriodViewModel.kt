@@ -5,11 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 import com.client.recouvrementapp.domain.model.room.PeriodModel
-import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.repository.room.PeriodRepository
-import com.client.recouvrementapp.domain.repository.room.UserRepository
 import kotlinx.coroutines.launch
 
 class PeriodViewModel(private val repository: PeriodRepository) : ViewModel() {

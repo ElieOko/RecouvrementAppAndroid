@@ -5,11 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.client.recouvrementapp.domain.model.core.Currency
 import com.client.recouvrementapp.domain.model.room.CurrencyModel
-import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.repository.room.CurrencyRepository
-import com.client.recouvrementapp.domain.repository.room.UserRepository
 import kotlinx.coroutines.launch
 
 class CurrencyViewModel(private val repository: CurrencyRepository) : ViewModel() {
