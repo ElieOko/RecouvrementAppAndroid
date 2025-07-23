@@ -46,6 +46,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
 import com.client.recouvrementapp.core.AsteriskPasswordVisualTransformation
@@ -57,6 +59,7 @@ import com.client.recouvrementapp.domain.model.ResponseHttpRequestAuth
 import com.client.recouvrementapp.domain.model.core.user.ProfilUser
 import com.client.recouvrementapp.domain.model.core.user.User
 import com.client.recouvrementapp.domain.model.core.user.UserAuth
+import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgroundShapes
@@ -234,6 +237,7 @@ fun AuthLoginBody(
                                                     in 200..299 ->{
                                                         isActive = true
                                                         val res = response.body<ResponseHttpRequestAuth>()
+                                                        val userModel = UserModel(id = res.profile.id, username = res.profile.username, displayName = res.profile.displayName)
                                                         Log.e("data response ->","$res")
                                                         scope.launch {
                                                             //StoreData(context).delete()
@@ -248,6 +252,22 @@ fun AuthLoginBody(
                                                             Log.e("Call response ->***","$userT")
                                                             StoreData(context).saveUser(userT)
                                                         }
+                                                        scope.launch {
+                                                            vm.room.user.getUser(userId = userModel.id).observe(
+                                                                context as LifecycleOwner, Observer{users->
+                                                                    users.let {
+                                                                        if(users.isNotEmpty()){
+                                                                            vm.room.user.update(userModel)
+                                                                            Log.i("update user->","$userModel")
+                                                                        } else {
+                                                                            vm.room.user.insert(userModel)
+                                                                            Log.i("insert user->","$userModel")
+                                                                        }
+                                                                    }
+                                                                }
+                                                            )
+                                                        }
+
                                                         navC?.navigate(route = ScreenRoute.Home.name){
                                                             popUpTo(navC.graph.id){
                                                                 inclusive = true
