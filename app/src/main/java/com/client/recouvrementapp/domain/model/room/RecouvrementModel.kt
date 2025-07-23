@@ -3,6 +3,7 @@ package com.client.recouvrementapp.domain.model.room
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -43,7 +44,11 @@ import androidx.room.PrimaryKey
             onUpdate = ForeignKey.CASCADE,
             onDelete = ForeignKey.CASCADE
         ),
-    ]
+    ],
+    indices = [Index(
+        value = ["recouvrement_id"],
+        unique = true
+    )]
 )
 data class RecouvrementModel(
     @PrimaryKey(autoGenerate = true) val uid: Int = 0,

@@ -2,11 +2,16 @@ package com.client.recouvrementapp.domain.model.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
 @Entity(
-    tableName = "TCurrency"
+    tableName = "TCurrency",
+    indices = [Index(
+        value = ["currency_id"],
+        unique = true
+    )]
 )
 data class CurrencyModel(
     @PrimaryKey(autoGenerate = true) val uid: Int = 0,
