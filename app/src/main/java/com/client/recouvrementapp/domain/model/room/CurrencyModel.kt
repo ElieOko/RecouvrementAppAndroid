@@ -4,6 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.client.recouvrementapp.domain.model.DataSelect
+import kotlin.collections.forEach
 
 
 @Entity(
@@ -20,4 +22,12 @@ data class CurrencyModel(
     val name : String = "",
     val code : String = "",
     val symbole : String = ""
-)
+){
+    fun asDataSelect(item: List<CurrencyModel>?) : List<DataSelect>{
+        val listDataSelect = mutableListOf<DataSelect>()
+        item?.forEach {
+            listDataSelect.add(DataSelect(id = it.id, name = "${it.symbole} (${it.code})"))
+        }
+        return listDataSelect
+    }
+}
