@@ -14,4 +14,9 @@ class UserRepository(val dao : IUserDao) {
     fun insert(user: UserModel) {
         dao.insertAll(user)
     }
+
+    @WorkerThread
+    fun update(user: UserModel) {
+        dao.updateAll(user)
+    }
 }

@@ -13,4 +13,9 @@ class TransactionTypeRepository(val dao: ITransactionTypeDao) {
     suspend fun insert(transactionTypeModel: TransactionTypeModel) {
         dao.insertAll(transactionTypeModel)
     }
+
+    @WorkerThread
+    suspend fun update(transactionTypeModel: TransactionTypeModel) {
+        dao.updateAll(transactionTypeModel)
+    }
 }

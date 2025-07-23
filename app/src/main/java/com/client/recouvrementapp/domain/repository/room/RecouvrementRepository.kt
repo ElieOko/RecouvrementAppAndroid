@@ -17,4 +17,10 @@ class RecouvrementRepository(private val recouvrementDao: IRecouvrementDao){
     suspend fun insert(recouvrement: RecouvrementModel) {
         recouvrementDao.insertAll(recouvrement)
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun update(recouvrement: RecouvrementModel) {
+        recouvrementDao.updateAll(recouvrement)
+    }
 }

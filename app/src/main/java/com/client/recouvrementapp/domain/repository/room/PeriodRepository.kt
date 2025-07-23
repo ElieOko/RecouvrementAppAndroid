@@ -13,4 +13,9 @@ class PeriodRepository(val dao: IPeriodDao) {
     suspend fun insert(periodModel: PeriodModel) {
         dao.insertAll(periodModel)
     }
+
+    @WorkerThread
+    suspend fun update(periodModel: PeriodModel) {
+        dao.updateAll(periodModel)
+    }
 }
