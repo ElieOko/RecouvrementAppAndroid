@@ -7,18 +7,35 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.repository.room.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class UserViewModel(private val repository: UserRepository) : ViewModel() {
 
-    fun getUser(userId : Int): LiveData<List<UserModel>> =  repository.getCurrentUser(userId).asLiveData()
+    private val _listUser = MutableStateFlow<List<UserModel>>(arrayListOf())
+    val listUser get() = _listUser.asStateFlow()
+    fun getUser(userId : Int) = viewModelScope.launch {
+        withContext(Dispatchers.IO) {
+            _listUser.value =  repository.getCurrentUser(userId)
+        }
+
+    }
 
     fun insert(user : UserModel) = viewModelScope.launch {
-        repository.insert(user)
+        withContext(Dispatchers.IO) {
+            repository.insert(user)
+        }
     }
 
     fun update(user : UserModel) = viewModelScope.launch {
-        repository.update(user)
+        withContext(Dispatchers.IO) {
+            repository.update(user)
+        }
+
     }
 
 }

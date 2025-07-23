@@ -6,19 +6,37 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.client.recouvrementapp.domain.model.room.PeriodModel
+import com.client.recouvrementapp.domain.model.room.TransactionTypeModel
 import com.client.recouvrementapp.domain.repository.room.PeriodRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PeriodViewModel(private val repository: PeriodRepository) : ViewModel() {
 
-    val getAllPeriod: LiveData<List<PeriodModel>> =  repository.allPeriod.asLiveData()
+    private val _listPeriod = MutableStateFlow<List<PeriodModel>>(arrayListOf())
+    val listPeriod get() = _listPeriod.asStateFlow()
 
+    fun getAllPeriod(){
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                _listPeriod.value = repository.allPeriod
+            }
+        }
+    }
     fun insert( periodModel: PeriodModel) = viewModelScope.launch {
-        repository.insert(periodModel)
+        withContext(Dispatchers.IO) {
+            repository.insert(periodModel)
+        }
+
     }
 
     fun update( periodModel: PeriodModel) = viewModelScope.launch {
-        repository.update(periodModel)
+        withContext(Dispatchers.IO) {
+            repository.update(periodModel)
+        }
     }
 
 }
