@@ -8,7 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.client.recouvrementapp.domain.viewmodel.ParentViewModel
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.ui.pages.auth.AuthLogin
 import com.client.recouvrementapp.presentation.ui.pages.config.printer.PrinterConfig
 import com.client.recouvrementapp.presentation.ui.pages.home.Home
@@ -21,31 +21,29 @@ import com.client.recouvrementapp.presentation.ui.pages.recouvrement.HistoryReco
 @Composable
 fun Navigation(
     navC: NavHostController,
-    innerPadding: PaddingValues,
-    viewModelGlobal: ParentViewModel = viewModel(),
-    isConnected: Boolean
+    viewModelGlobal: ApplicationViewModel? = viewModel()
 ){
     NavHost(navController = navC, startDestination = ScreenRoute.Login.name, route = "root") {
         composable(ScreenRoute.Login.name) {
-            AuthLogin(navC,onBackEvent={},isConnected)
+            AuthLogin(navC,onBackEvent={},viewModelGlobal)
         }
         composable(ScreenRoute.Home.name) {
-            Home(navC,isConnected)
+            Home(navC,viewModelGlobal)
         }
         composable(ScreenRoute.History.name) {
-            HistoryRecouvrement(navC,onBackEvent={navC.popBackStack()},isConnected)
+            HistoryRecouvrement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
         composable(ScreenRoute.Detail.name) {
-            DetailRecouvrement(navC,onBackEvent={navC.popBackStack()},isConnected)
+            DetailRecouvrement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
         composable(ScreenRoute.Payment.name) {
-            Paiement(navC,onBackEvent={navC.popBackStack()},isConnected)
+            Paiement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
-        composable(ScreenRoute.PrinterConfig.name) {
-            PrinterConfig(navC, onBackEvent ={navC.popBackStack()}, viewModelGlobal.vmPrinterConfig,isConnected)
+        composable(ScreenRoute.PrinterConfig.name,) {
+            PrinterConfig(navC, onBackEvent ={navC.popBackStack()}, viewModelGlobal)
         }
         composable(ScreenRoute.PaymentPrinter.name) {
-            PaimentPrinter(navC,onBackEvent={navC.popBackStack()},isConnected)
+            PaimentPrinter(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
     }
 }
