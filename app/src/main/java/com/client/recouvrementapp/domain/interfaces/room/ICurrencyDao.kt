@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.client.recouvrementapp.domain.model.room.CurrencyModel
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,9 @@ interface ICurrencyDao {
 
     @Insert
     suspend fun insertAll(vararg currencies: CurrencyModel)
+
+    @Update
+    suspend fun updateAll(vararg currencies: CurrencyModel)
 
     @Delete
     suspend fun delete(currency: CurrencyModel)

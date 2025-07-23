@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 
@@ -14,6 +15,9 @@ interface IPaymentMethodDao {
 
     @Insert
     suspend fun insertAll(vararg paymentMethods: PaymentMethodModel)
+
+    @Update
+    suspend fun updateAll(vararg paymentMethods: PaymentMethodModel)
 
     @Delete
     suspend fun delete(paymentMethod: PaymentMethodModel)

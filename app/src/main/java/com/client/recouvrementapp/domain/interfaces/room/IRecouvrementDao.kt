@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
 import com.client.recouvrementapp.domain.model.room.RecouvrementWithRelations
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,9 @@ interface IRecouvrementDao {
 
     @Insert
     fun insertAll(vararg recouvrements: RecouvrementModel)
+
+    @Update
+    fun updateAll(vararg recouvrements: RecouvrementModel)
 
     @Delete
     fun delete(recouvrement: RecouvrementModel)

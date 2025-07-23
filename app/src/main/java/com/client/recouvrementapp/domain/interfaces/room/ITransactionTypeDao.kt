@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.client.recouvrementapp.domain.model.room.TransactionTypeModel
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,9 @@ interface ITransactionTypeDao {
 
     @Insert
     suspend fun insertAll(vararg transactionTypes: TransactionTypeModel)
+
+    @Update
+    suspend fun updateAll(vararg transactionTypes: TransactionTypeModel)
 
     @Delete
     suspend fun delete(transactionType: TransactionTypeModel)

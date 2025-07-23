@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.client.recouvrementapp.domain.model.room.PeriodModel
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,9 @@ interface IPeriodDao {
 
     @Insert
     suspend fun insertAll(vararg periodes: PeriodModel)
+
+    @Update
+    suspend fun updateAll(vararg periodes: PeriodModel)
 
     @Delete
     suspend fun delete(periode: PeriodModel)

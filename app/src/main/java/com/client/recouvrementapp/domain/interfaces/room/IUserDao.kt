@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.client.recouvrementapp.domain.model.room.UserModel
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,9 @@ interface IUserDao {
 
     @Insert
     fun insertAll(vararg users: UserModel)
+
+    @Update
+    fun updateAll(vararg users: UserModel)
 
     @Delete
     fun delete(user: UserModel)
