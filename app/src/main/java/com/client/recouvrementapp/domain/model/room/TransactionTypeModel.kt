@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class TransactionTypeModel(
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "transaction_type_id") val id : Int = 0,
     val name: String = ""
 )

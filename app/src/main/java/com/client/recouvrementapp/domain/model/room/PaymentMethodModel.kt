@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class PaymentMethodModel(
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "payment_method_id") val id : Int = 0,
     val name : String = ""
 )

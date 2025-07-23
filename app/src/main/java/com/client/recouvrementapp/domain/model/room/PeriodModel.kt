@@ -13,7 +13,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class PeriodModel(
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "period_id") val id : Int = 1,
     val name : String = ""
 )

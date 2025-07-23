@@ -51,7 +51,7 @@ import androidx.room.PrimaryKey
     )]
 )
 data class RecouvrementModel(
-    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "recouvrement_id")
     val id : Int = 0,
     @ColumnInfo(name = "user_id")
