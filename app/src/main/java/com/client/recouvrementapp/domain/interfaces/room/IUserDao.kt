@@ -3,6 +3,7 @@ package com.client.recouvrementapp.domain.interfaces.room
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.client.recouvrementapp.domain.model.room.UserModel
@@ -14,12 +15,12 @@ interface IUserDao {
     fun getAll(): Flow<List<UserModel>>
 
     @Query("SELECT * FROM TUser WHERE user_id IN (:userId)")
-    fun loadAllById(userId: Int): Flow<List<UserModel>>
+    fun loadAllById(userId: Int): List<UserModel>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(vararg users: UserModel)
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateAll(vararg users: UserModel)
 
     @Delete
