@@ -17,6 +17,10 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
         repository.insert(user)
     }
 
+    fun update(user : UserModel) = viewModelScope.launch {
+        repository.update(user)
+    }
+
 }
 
 class UserViewModelFactory(private val repository: UserRepository) : ViewModelProvider.Factory {

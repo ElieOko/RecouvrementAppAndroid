@@ -22,6 +22,10 @@ class RecouvrementViewModel(private val repository: RecouvrementRepository) : Vi
         repository.insert(recouvrement)
     }
 
+    fun update(recouvrement: RecouvrementModel) = viewModelScope.launch {
+        repository.update(recouvrement)
+    }
+
 }
 
 class RecouvrementViewModelFactory(private val repository: RecouvrementRepository) : ViewModelProvider.Factory {

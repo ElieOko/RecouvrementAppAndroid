@@ -20,6 +20,10 @@ class CurrencyViewModel(private val repository: CurrencyRepository) : ViewModel(
         repository.insert(currency)
     }
 
+    fun update(currency : CurrencyModel) = viewModelScope.launch {
+        repository.update(currency)
+    }
+
 }
 
 class CurrencyViewModelFactory(private val repository: CurrencyRepository) : ViewModelProvider.Factory {

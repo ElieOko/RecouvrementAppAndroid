@@ -20,6 +20,10 @@ class PeriodViewModel(private val repository: PeriodRepository) : ViewModel() {
         repository.insert(periodModel)
     }
 
+    fun update( periodModel: PeriodModel) = viewModelScope.launch {
+        repository.update(periodModel)
+    }
+
 }
 
 class PeriodViewModelFactory(private val repository: PeriodRepository) : ViewModelProvider.Factory {

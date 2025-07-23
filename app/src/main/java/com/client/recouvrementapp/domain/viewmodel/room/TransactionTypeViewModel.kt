@@ -20,6 +20,10 @@ class TransactionTypeViewModel(private val repository: TransactionTypeRepository
         repository.insert(transactionType)
     }
 
+    fun update(transactionType: TransactionTypeModel) = viewModelScope.launch {
+        repository.update(transactionType)
+    }
+
 }
 
 class TransactionTypeViewModelFactory(private val repository: TransactionTypeRepository) : ViewModelProvider.Factory {

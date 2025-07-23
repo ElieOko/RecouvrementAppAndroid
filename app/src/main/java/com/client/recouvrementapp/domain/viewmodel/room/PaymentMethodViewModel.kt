@@ -19,6 +19,10 @@ class PaymentMethodViewModel(private val repository: PaymentMethodRepository) : 
         repository.insert(paymentMethod)
     }
 
+    fun update(paymentMethod : PaymentMethodModel) = viewModelScope.launch {
+        repository.update(paymentMethod)
+    }
+
 }
 
 class PaymentMethodViewModelFactory(private val repository: PaymentMethodRepository) : ViewModelProvider.Factory {
