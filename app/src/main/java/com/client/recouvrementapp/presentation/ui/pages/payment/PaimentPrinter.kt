@@ -43,15 +43,18 @@ import java.io.UnsupportedEncodingException
 fun PaimentPrinter(
     navC: NavHostController,
     onBackEvent: () -> Unit,
-    isConnected: Boolean,
     viewModelGlobal: ApplicationViewModel?
 ) {
-    PaimentPrinterBody(navC, onBackEvent)
+    PaimentPrinterBody(navC, onBackEvent, viewModelGlobal)
 }
 
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
 @Composable
-fun PaimentPrinterBody(navC: NavHostController?= null, onBackEvent: () -> Unit ={}) {
+fun PaimentPrinterBody(
+    navC: NavHostController? = null,
+    onBackEvent: () -> Unit = {},
+    viewModelGlobal: ApplicationViewModel? = null
+) {
     val context = LocalContext.current
     var bluetooth by mutableStateOf("")
     val scopeCoroutine = rememberCoroutineScope()

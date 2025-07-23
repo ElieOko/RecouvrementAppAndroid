@@ -63,15 +63,18 @@ import com.partners.hdfils_recolte.presentation.ui.components.Space
 fun Paiement(
     navC: NavHostController,
     onBackEvent: () -> Unit = {},
-    isConnected: Boolean,
     viewModelGlobal: ApplicationViewModel?
 ) {
-    PaiementBody(navC,onBackEvent)
+    PaiementBody(navC,onBackEvent, viewModelGlobal)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PaiementBody(navC: NavHostController? = null, onBackEvent: () -> Unit ={}) {
+fun PaiementBody(
+    navC: NavHostController? = null,
+    onBackEvent: () -> Unit = {},
+    viewModelGlobal: ApplicationViewModel? = null
+) {
     var remarks by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var paymentDate by remember { mutableStateOf("") }

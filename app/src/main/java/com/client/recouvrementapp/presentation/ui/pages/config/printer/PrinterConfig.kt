@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.data.shared.StoreData
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.domain.viewmodel.config.PrinterConfigViewModel
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.partners.hdfils_recolte.presentation.ui.components.Space
@@ -38,8 +39,7 @@ import kotlinx.coroutines.launch
 fun PrinterConfig(
     navC: NavHostController,
     onBackEvent: () -> Unit,
-    vm: PrinterConfigViewModel? = viewModel(),
-    isConnected: Boolean
+    vm: ApplicationViewModel? = viewModel()
 ) {
     PrinterConfigBody(navC,onBackEvent,vm)
 }
@@ -49,13 +49,13 @@ fun PrinterConfig(
 fun PrinterConfigBody(
     navC: NavHostController? = null,
     onBackEvent: () -> Unit = {},
-    vm: PrinterConfigViewModel? = viewModel()
+    vm: ApplicationViewModel? = viewModel()
 ) {
     val context = LocalContext.current
     val scopeCoroutine = rememberCoroutineScope()
     var deviceList: MutableList<Device?> = ArrayList<Device?>()
    // var deviceList = mutableListOf<Device?>()
-    deviceList = vm?.deviceList as MutableList<Device?>
+    deviceList = vm?.configuration?.printer?.deviceList as MutableList<Device?>
     var mNewDevicesArrayAdapter: ArrayAdapter<String?>? = null
     var bluetoothStatus by mutableStateOf("")
 //    var btService : BtService? = null
@@ -86,7 +86,7 @@ fun PrinterConfigBody(
             .padding(it)
             .padding(5.dp)) {
             Button(onClick = {
-                val device = vm.scan()!!
+                val device = vm.configuration.printer.scan()!!
                 device.forEach{ dev->
                    if(deviceList.none{ d -> d?.deviceAddress == dev?.deviceAddress }){
                        deviceList.add(dev)
@@ -137,6 +137,6 @@ fun PrinterConfigBody(
 
 @Composable
 @Preview(showBackground = true)
-fun PrinterConfigPreview(printerConfigViewModel : PrinterConfigViewModel = viewModel()) {
-    PrinterConfigBody(vm = printerConfigViewModel)
+fun PrinterConfigPreview() {
+    PrinterConfigBody()
 }

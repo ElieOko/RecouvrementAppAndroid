@@ -15,14 +15,17 @@ import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 fun DetailRecouvrement(
     navC: NavHostController,
     onBackEvent: () -> Unit,
-    isConnected: Boolean,
-    viewModelGlobal: ApplicationViewModel?
+    viewModelGlobal: ApplicationViewModel? = null
 ) {
-    DetailRecouvrementBody(navC,onBackEvent)
+    DetailRecouvrementBody(navC,onBackEvent,viewModelGlobal)
 }
 
 @Composable
-fun DetailRecouvrementBody(navC: NavHostController? = null, onBackEvent: () -> Unit ={}) {
+fun DetailRecouvrementBody(
+    navC: NavHostController? = null,
+    onBackEvent: () -> Unit = {},
+    viewModelGlobal: ApplicationViewModel? = null
+) {
     Scaffold(
         topBar = {
             TopBarSimple(

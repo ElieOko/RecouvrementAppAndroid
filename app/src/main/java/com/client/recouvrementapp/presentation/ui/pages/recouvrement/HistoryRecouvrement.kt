@@ -34,14 +34,17 @@ import com.client.recouvrementapp.presentation.ui.theme.wsColor
 fun HistoryRecouvrement(
     navC: NavHostController,
     onBackEvent: () -> Unit = {},
-    isConnected: Boolean,
     viewModelGlobal: ApplicationViewModel?
 ) {
-    HistoryRecouvrementBody(navC,onBackEvent)
+    HistoryRecouvrementBody(navC,onBackEvent,viewModelGlobal)
 }
 
 @Composable
-fun HistoryRecouvrementBody(navC: NavHostController? = null, onBackEvent: () -> Unit = {}) {
+fun HistoryRecouvrementBody(
+    navC: NavHostController? = null,
+    onBackEvent: () -> Unit = {},
+    viewModelGlobal: ApplicationViewModel? = null
+) {
     val scrollHorizontal = rememberScrollState()
     val scrollVertical = rememberScrollState()
     val positionChannel = remember { mutableIntStateOf(1) }
