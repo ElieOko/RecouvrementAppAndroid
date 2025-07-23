@@ -33,6 +33,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.data.local.Constantes.Companion.currencyRoute
 import com.client.recouvrementapp.data.local.Constantes.Companion.paymentMethodRoute
+import com.client.recouvrementapp.data.local.Constantes.Companion.periodOpenRoute
 import com.client.recouvrementapp.data.remote.requestServer
 import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.model.KeyValue
@@ -40,6 +41,9 @@ import com.client.recouvrementapp.domain.model.MenuItem
 import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
 import com.client.recouvrementapp.domain.model.core.Currency
 import com.client.recouvrementapp.domain.model.core.user.ProfilUser
+import com.client.recouvrementapp.domain.model.room.CurrencyModel
+import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
+import com.client.recouvrementapp.domain.model.room.PeriodModel
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouvrement
@@ -109,15 +113,12 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
         })
     )
     var onclick : () -> Unit = {}
-    /*if (vm?.configuration?.isConnectNetwork == true){
+    if (vm?.configuration?.isConnectNetwork == true){
+
         CoroutineScope(Dispatchers.IO).launch {
             val responseCurrency = requestServer(
                 context = context,
                 route = currencyRoute
-            )
-            val responseTypePaymentMethod = requestServer(
-                context = context,
-                route = paymentMethodRoute
             )
             Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
             val status = responseCurrency.status.value
@@ -126,25 +127,100 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                     //
                     val data : ArrayList<KeyValue> = responseCurrency.body()
                     Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                    scope.launch {
+                        data.forEach {currency->
+                            when(currency.id){
+                                1->{
+                                    val currencyModel = CurrencyModel(
+                                        id = currency.id,
+                                        name = currency.name,
+                                        code = "USD",
+                                        symbole = "$"
+                                    )
+                                    vm.room.currency.insert(currencyModel)
+                                }
+                                2->{
+                                    val currencyModel = CurrencyModel(
+                                        id = currency.id,
+                                        name = currency.name,
+                                        code = "CDF",
+                                        symbole = "Fc"
+                                    )
+                                    vm.room.currency.insert(currencyModel)
+                                }
+                                else ->{
+                                    val currencyModel = CurrencyModel(
+                                        id = currency.id,
+                                        name = currency.name
+                                    )
+                                    vm.room.currency.insert(currencyModel)
+                                }
+                            }
 
-                }
-                in 400..499->{
 
-                }
-            }
-
-            val status2 = responseTypePaymentMethod.status.value
-            when(status2){
-                in 200..299 ->{
-                    val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
-                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                        }
+                    }
                 }
                 in 400..499->{
 
                 }
             }
         }
-    }*/
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val responseTypePaymentMethod = requestServer(
+                context = context,
+                route = paymentMethodRoute
+            )
+            val status = responseTypePaymentMethod.status.value
+            when(status){
+                in 200..299 ->{
+                    val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
+                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                    scope.launch {
+                        data.forEach {typePaymentMethod->
+                            val paymentModel = PaymentMethodModel(
+                                id      = typePaymentMethod.id,
+                                name    = typePaymentMethod.name
+                            )
+                            vm.room.paymentMethod.insert(paymentModel)
+                        }
+                    }
+                }
+                in 400..499->{
+
+                }
+            }
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val responsePeriod = requestServer(
+                context = context,
+                route = periodOpenRoute
+            )
+            val status = responsePeriod.status.value
+            when(status){
+                in 200..299 ->{
+                    val data : ArrayList<KeyValue> = responsePeriod.body()
+                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+
+                    scope.launch {
+                        data.forEach {period->
+                            val periodModel = PeriodModel(
+                                id      = period.id,
+                                name    = period.name
+                            )
+                            vm.room.period.insert(periodModel)
+                        }
+                        Log.e("save periode>>>","$$$$$")
+                    }
+                }
+                in 400..499->{
+
+                }
+            }
+        }
+    }
 
 
     Scaffold(

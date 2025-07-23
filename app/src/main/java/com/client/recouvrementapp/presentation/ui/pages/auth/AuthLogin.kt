@@ -28,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,8 +67,12 @@ import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgr
 import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun AuthLogin(
@@ -96,6 +101,8 @@ fun AuthLoginBody(
     var titleMsg by remember { mutableStateOf("Erreur") }
     var isShow by remember { mutableStateOf(false) }
     val isVisible = remember { mutableStateOf(false) }
+    val userList = vm?.room?.user?.listUser?.collectAsState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -224,70 +231,73 @@ fun AuthLoginBody(
                                             titleMsg = "Champs vide"
                                         }
                                         if (username.isNotEmpty() && password.isNotEmpty()){
-
                                             coroutineScope.launch {
                                                 isActive = false
                                                 delay(3000)
                                                 Log.e("connect server->","${UserAuth(username,password)}")
-                                                val response = KtorClientAndroid().postData(authConnectRoute,
-                                                    UserAuth(username =username,password = password, grant_type = "password")
-                                                )
-                                                val status = response.status.value
-                                                when(status){
-                                                    in 200..299 ->{
-                                                        isActive = true
-                                                        val res = response.body<ResponseHttpRequestAuth>()
-                                                        val userModel = UserModel(id = res.profile.id, username = res.profile.username, displayName = res.profile.displayName)
-                                                        Log.e("data response ->","$res")
-                                                        scope.launch {
-                                                            //StoreData(context).delete()
-                                                            val userT = ProfilUser(
-                                                                token_type = res.token_type,
-                                                                access_token = res.access_token,
-                                                                profile = User(res.profile.id,
-                                                                    res.profile.displayName,
-                                                                    res.profile.username
+                                                try {
+                                                    val response = KtorClientAndroid().postData(authConnectRoute,
+                                                        UserAuth(username =username,password = password, grant_type = "password")
+                                                    )
+                                                    val status = response.status.value
+                                                    when(status){
+                                                        in 200..299 ->{
+                                                            isActive = true
+                                                            val res = response.body<ResponseHttpRequestAuth>()
+                                                            val userModel = UserModel(id = res.profile.id, username = res.profile.username, displayName = res.profile.displayName)
+                                                            Log.e("data response ->","$res")
+                                                            scope.launch {
+                                                                //StoreData(context).delete()
+                                                                val userT = ProfilUser(
+                                                                    token_type = res.token_type,
+                                                                    access_token = res.access_token,
+                                                                    profile = User(res.profile.id,
+                                                                        res.profile.displayName,
+                                                                        res.profile.username
+                                                                    )
                                                                 )
-                                                            )
-                                                            Log.e("Call response ->***","$userT")
-                                                            StoreData(context).saveUser(userT)
-                                                        }
-                                                        scope.launch {
-                                                            vm.room.user.getUser(userId = userModel.id).observe(
-                                                                context as LifecycleOwner, Observer{users->
-                                                                    users.let {
-                                                                        if(users.isNotEmpty()){
-                                                                            vm.room.user.update(userModel)
-                                                                            Log.i("update user->","$userModel")
-                                                                        } else {
-                                                                            vm.room.user.insert(userModel)
-                                                                            Log.i("insert user->","$userModel")
-                                                                        }
-                                                                    }
+                                                                Log.e("Call response ->***","$userT")
+                                                                StoreData(context).saveUser(userT)
+                                                            }
+                                                            scope.launch {
+                                                                vm.room.user.getUser(userId = userModel.id)
+                                                                if (userList?.value?.isNotEmpty() == true){
+                                                                    vm.room.user.update(userModel)
+                                                                    Log.i("update user->","$userModel")
+                                                                } else{
+                                                                    vm.room.user.insert(userModel)
+                                                                    Log.i("insert user->","$userModel")
                                                                 }
-                                                            )
-                                                        }
-
-                                                        navC?.navigate(route = ScreenRoute.Home.name){
-                                                            popUpTo(navC.graph.id){
-                                                                inclusive = true
+                                                                Log.i("size user->","${userList?.value?.size}")
+                                                            }
+                                                            navC?.navigate(route = ScreenRoute.Home.name){
+                                                                popUpTo(navC.graph.id){
+                                                                    inclusive = true
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                    in 500..599 ->{
-                                                        isActive = true
-                                                        titleMsg = "Erreur serveur"
-                                                        msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
-                                                        isShow = true
-                                                    }
-                                                    in 400..499 ->{
-                                                        isActive = true
-                                                        val res = response.body<ResponseHttpRequest>()
-                                                        titleMsg = "erreur"
-                                                        msg = res.message
-                                                        isShow = true
+                                                        in 500..599 ->{
+                                                            isActive = true
+                                                            titleMsg = "Erreur serveur"
+                                                            msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                            isShow = true
+                                                        }
+                                                        in 400..499 ->{
+                                                            isActive = true
+                                                            val res = response.body<ResponseHttpRequest>()
+                                                            titleMsg = "erreur"
+                                                            msg = res.message
+                                                            isShow = true
+                                                        }
                                                     }
                                                 }
+                                                catch (e : HttpRequestTimeoutException){
+                                                    msg         = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
+                                                    titleMsg    = "Request expire"
+                                                    isShow      = true
+                                                    Log.e("Network expired request ->",e.message.toString())
+                                                }
+
                                             }
                                         }
                                     }
