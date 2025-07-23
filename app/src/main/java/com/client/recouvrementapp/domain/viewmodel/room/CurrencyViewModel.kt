@@ -20,7 +20,7 @@ class CurrencyViewModel(private val repository: CurrencyRepository) : ViewModel(
 
     fun getAllCurrencies() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
-            _listCurrencies.value = repository.allCurrency
+            _listCurrencies.value = repository.allCurrency()
         }
     }
 

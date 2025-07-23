@@ -22,7 +22,7 @@ class TransactionTypeViewModel(private val repository: TransactionTypeRepository
     fun getAllTransactionType(){
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _listTypeTransaction.value = repository.allTransactionType
+                _listTypeTransaction.value = repository.allTransactionType()
             }
         }
     }

@@ -22,6 +22,8 @@ class Constantes {
         const val authConnectRoute = "auth/connect"
         const val currencyRoute = "api/currencies/availablecurrencies"
         const val paymentMethodRoute = "api/paymentmethods/availablepaymentmethods"
+        const val periodOpenRoute = "api/periods/openperiods"
+        const val recouvrementRoute = "api/transactions/create"
     }
 
 }

@@ -22,7 +22,7 @@ class PaymentMethodViewModel(private val repository: PaymentMethodRepository) : 
     fun getAllPaymentMethod(){
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _listPaymentMethod.value = repository.allPaymentMethod
+                _listPaymentMethod.value = repository.allPaymentMethod()
             }
         }
     }

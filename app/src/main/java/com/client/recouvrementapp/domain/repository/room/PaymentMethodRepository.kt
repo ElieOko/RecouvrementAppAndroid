@@ -8,7 +8,8 @@ import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 import kotlinx.coroutines.flow.Flow
 
 class PaymentMethodRepository(val paymentMethodDao: IPaymentMethodDao) {
-    val allPaymentMethod : List<PaymentMethodModel> = paymentMethodDao.getAll()
+    @WorkerThread
+    fun allPaymentMethod() : List<PaymentMethodModel> = paymentMethodDao.getAll()
 
     @WorkerThread
     suspend fun insert(paymentMethod: PaymentMethodModel) {

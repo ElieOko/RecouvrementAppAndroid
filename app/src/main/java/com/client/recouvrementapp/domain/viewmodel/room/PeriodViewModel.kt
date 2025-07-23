@@ -22,7 +22,7 @@ class PeriodViewModel(private val repository: PeriodRepository) : ViewModel() {
     fun getAllPeriod(){
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _listPeriod.value = repository.allPeriod
+                _listPeriod.value = repository.allPeriod()
             }
         }
     }
