@@ -21,7 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [CurrencyModel::class, PaymentMethodModel::class, PeriodModel::class, RecouvrementModel::class, TransactionTypeModel::class, UserModel::class], version = 1, exportSchema = false)
+    entities = [CurrencyModel::class, PaymentMethodModel::class, PeriodModel::class, RecouvrementModel::class, TransactionTypeModel::class, UserModel::class], version = 2, exportSchema = false)
 abstract class RecouvrementRoomDatabase : RoomDatabase() {
     abstract fun currencyDao(): ICurrencyDao
     abstract fun recouvrementDao(): IRecouvrementDao
@@ -40,7 +40,8 @@ abstract class RecouvrementRoomDatabase : RoomDatabase() {
                     context.applicationContext,
                     RecouvrementRoomDatabase::class.java,
                     "recouvrement"
-                ).build()
+                ).fallbackToDestructiveMigrationFrom(1)
+                    .build()
                 INSTANCE = instance
                 // return instance
                 instance
