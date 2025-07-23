@@ -3,7 +3,6 @@ package com.client.recouvrementapp.presentation.ui.pages.home
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +41,7 @@ import com.client.recouvrementapp.domain.model.RecouvrementAmountOfDay
 import com.client.recouvrementapp.domain.model.core.Currency
 import com.client.recouvrementapp.domain.model.core.user.ProfilUser
 import com.client.recouvrementapp.domain.route.ScreenRoute
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouvrement
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton
 import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
@@ -58,13 +57,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.ArraySerializer
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
-fun Home(navC: NavHostController, isConnected: Boolean) {
-    HomeBody(navC)
+fun Home(navC: NavHostController,viewModelGlobal: ApplicationViewModel?) {
+    HomeBody(navC,viewModelGlobal)
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -72,7 +69,7 @@ fun Home(navC: NavHostController, isConnected: Boolean) {
     "ConfigurationScreenWidthHeight"
 )
 @Composable
-fun HomeBody(navC: NavHostController? = null) {
+fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) {
     val configuration = LocalConfiguration.current
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -112,41 +109,43 @@ fun HomeBody(navC: NavHostController? = null) {
         })
     )
     var onclick : () -> Unit = {}
+    if (vm?.configuration?.isConnectNetwork == true){
+        CoroutineScope(Dispatchers.IO).launch {
+            val responseCurrency = requestServer(
+                context = context,
+                route = currencyRoute
+            )
+            val responseTypePaymentMethod = requestServer(
+                context = context,
+                route = paymentMethodRoute
+            )
+            Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
+            val status = responseCurrency.status.value
+            when(status){
+                in 200..299 ->{
+                    //
+                    val data : ArrayList<KeyValue> = responseCurrency.body()
+                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
 
-    CoroutineScope(Dispatchers.IO).launch {
-        val responseCurrency = requestServer(
-            context = context,
-            route = currencyRoute
-        )
-        val responseTypePaymentMethod = requestServer(
-            context = context,
-            route = paymentMethodRoute
-        )
-        Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
-        val status = responseCurrency.status.value
-        when(status){
-            in 200..299 ->{
-                //
-                val data : ArrayList<KeyValue> = responseCurrency.body()
-                Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                }
+                in 400..499->{
 
+                }
             }
-            in 400..499->{
 
-            }
-        }
+            val status2 = responseTypePaymentMethod.status.value
+            when(status2){
+                in 200..299 ->{
+                    val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
+                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                }
+                in 400..499->{
 
-        val status2 = responseTypePaymentMethod.status.value
-        when(status2){
-            in 200..299 ->{
-                val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
-                Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
-            }
-            in 400..499->{
-
+                }
             }
         }
     }
+
 
     Scaffold(
         topBar = {
@@ -254,5 +253,5 @@ fun HomeBody(navC: NavHostController? = null) {
 @Preview(showBackground = true)
 @Composable
 fun HomePreview(){
-    HomeBody(null)
+    HomeBody()
 }

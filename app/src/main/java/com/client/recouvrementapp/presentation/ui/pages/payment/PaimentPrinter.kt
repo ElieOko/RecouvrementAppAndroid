@@ -32,6 +32,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
 import com.client.recouvrementapp.core.hexStringToBytes
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.domain.viewmodel.PrinterViewModel
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.partners.hdfils_recolte.presentation.ui.components.Space
@@ -39,7 +40,12 @@ import com.qs.helper.printer.PrintService
 import java.io.UnsupportedEncodingException
 
 @Composable
-fun PaimentPrinter(navC: NavHostController, onBackEvent: () -> Unit, isConnected: Boolean) {
+fun PaimentPrinter(
+    navC: NavHostController,
+    onBackEvent: () -> Unit,
+    isConnected: Boolean,
+    viewModelGlobal: ApplicationViewModel?
+) {
     PaimentPrinterBody(navC, onBackEvent)
 }
 

@@ -58,6 +58,7 @@ import com.client.recouvrementapp.domain.model.core.user.ProfilUser
 import com.client.recouvrementapp.domain.model.core.user.User
 import com.client.recouvrementapp.domain.model.core.user.UserAuth
 import com.client.recouvrementapp.domain.route.ScreenRoute
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.animate.AnimatedBackgroundShapes
 import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
 import com.partners.hdfils_recolte.presentation.ui.components.Space
@@ -66,8 +67,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected: Boolean) {
-    AuthLoginBody(navC,onBackEvent,isConnected)
+fun AuthLogin(
+    navC: NavHostController,
+    onBackEvent: () -> Unit = {},
+    vm: ApplicationViewModel?
+) {
+    AuthLoginBody(navC,onBackEvent,vm)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -75,7 +80,7 @@ fun AuthLogin(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected
 fun AuthLoginBody(
     navC: NavHostController? = null,
     onBackEvent: () -> Unit = {},
-    isConnected: Boolean = true
+    vm: ApplicationViewModel? = null,
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -203,7 +208,7 @@ fun AuthLoginBody(
                     Button(
                         onClick = {
                             try {
-                                when(isConnected){
+                                when(vm?.configuration?.isConnectNetwork){
                                     true ->{
                                         if(password.isEmpty()){
                                             isShow = true

@@ -53,13 +53,19 @@ import com.client.recouvrementapp.domain.model.core.PaymentMethod
 import com.client.recouvrementapp.domain.model.core.Period
 import com.client.recouvrementapp.domain.model.core.TransactionType
 import com.client.recouvrementapp.domain.route.ScreenRoute
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.elements.InputFieldCompose
 import com.client.recouvrementapp.presentation.components.elements.Label
 import com.client.recouvrementapp.presentation.components.elements.SelectInputField
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 
 @Composable
-fun Paiement(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected: Boolean) {
+fun Paiement(
+    navC: NavHostController,
+    onBackEvent: () -> Unit = {},
+    isConnected: Boolean,
+    viewModelGlobal: ApplicationViewModel?
+) {
     PaiementBody(navC,onBackEvent)
 }
 

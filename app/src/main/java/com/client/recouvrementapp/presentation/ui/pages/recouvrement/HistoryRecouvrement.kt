@@ -26,11 +26,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.domain.model.TypeRecouvrement
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.client.recouvrementapp.presentation.ui.theme.wsColor
 
 @Composable
-fun HistoryRecouvrement(navC: NavHostController, onBackEvent: () -> Unit = {}, isConnected: Boolean) {
+fun HistoryRecouvrement(
+    navC: NavHostController,
+    onBackEvent: () -> Unit = {},
+    isConnected: Boolean,
+    viewModelGlobal: ApplicationViewModel?
+) {
     HistoryRecouvrementBody(navC,onBackEvent)
 }
 
