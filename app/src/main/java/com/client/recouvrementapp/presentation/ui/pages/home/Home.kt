@@ -109,7 +109,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
         })
     )
     var onclick : () -> Unit = {}
-    if (vm?.configuration?.isConnectNetwork == true){
+    /*if (vm?.configuration?.isConnectNetwork == true){
         CoroutineScope(Dispatchers.IO).launch {
             val responseCurrency = requestServer(
                 context = context,
@@ -144,7 +144,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                 }
             }
         }
-    }
+    }*/
 
 
     Scaffold(

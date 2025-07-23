@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 }
-
+                applicationViewModel.configuration.isConnectNetwork = isConnected
                 initPrinterService(printerViewModel)
                 PrintService.pl = BtService(this, mhandler, handler)
                 Scaffold(modifier = Modifier.fillMaxSize()) {

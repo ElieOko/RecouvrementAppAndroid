@@ -31,7 +31,7 @@ class ConfigurationViewModel(
     isConnectNetworkState: Boolean
 ) : ViewModel(){
     var printer = printerViewModel
-    val isConnectNetwork = isConnectNetworkState
+    var isConnectNetwork = isConnectNetworkState
 }
 
 class ApplicationViewModel(
