@@ -16,8 +16,8 @@ interface IRecouvrementDao {
     fun getAll(userId : Int): Flow<List<RecouvrementWithRelations>>
 
     @Transaction
-    @Query("SELECT * FROM TRecouvrement WHERE date_payment LIKE :dateCurrent AND currency_id LIKE :currencyId")
-    fun getRecouvrementToDay(dateCurrent: String, currencyId : Int): Flow<List<RecouvrementWithRelations>>
+    @Query("SELECT * FROM TRecouvrement WHERE date_payment LIKE :dateCurrent AND currency_id LIKE :currencyId AND user_id LIKE :userId")
+    fun getRecouvrementToDay(dateCurrent: String, currencyId: Int, userId: Int): Flow<List<RecouvrementWithRelations>>
 
     @Insert
     fun insertAll(vararg recouvrements: RecouvrementModel)
