@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
     tableName = "TPeriod"
 )
 data class PeriodModel(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     @ColumnInfo(name = "period_id") val id : Int = 1,
     val name : String = ""
 )

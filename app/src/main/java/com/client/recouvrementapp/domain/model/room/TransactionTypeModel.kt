@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
     tableName = "TTransactionType"
 )
 data class TransactionTypeModel(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     @ColumnInfo(name = "transaction_type_id") val id : Int = 0,
     val name: String = ""
 )

@@ -9,7 +9,7 @@ import androidx.room.PrimaryKey
     tableName = "TCurrency"
 )
 data class CurrencyModel(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     @ColumnInfo(name = "currency_id") val id : Int = 0,
     val name : String = "",
     val code : String = "",

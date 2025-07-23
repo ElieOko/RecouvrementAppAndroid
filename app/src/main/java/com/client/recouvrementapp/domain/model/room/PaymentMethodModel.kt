@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
     tableName = "TPaymentMethod"
 )
 data class PaymentMethodModel(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     @ColumnInfo(name = "payment_method_id") val id : Int = 0,
     val name : String = ""
 )

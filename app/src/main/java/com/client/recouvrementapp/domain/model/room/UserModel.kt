@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
     tableName = "TUser"
 )
 data class UserModel(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     @ColumnInfo(name = "user_id", ) val id: Int,
     @ColumnInfo(name = "display_name") val displayName: String?,
     @ColumnInfo(name = "username") val username: String?,
