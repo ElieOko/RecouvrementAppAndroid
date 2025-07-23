@@ -7,10 +7,11 @@ import com.client.recouvrementapp.domain.model.room.TransactionTypeModel
 import kotlinx.coroutines.flow.Flow
 
 class TransactionTypeRepository(val dao: ITransactionTypeDao) {
-    val allTransactionType : Flow<List<TransactionTypeModel>> = dao.getAll()
+    val allTransactionType : List<TransactionTypeModel> = dao.getAll()
 
     @WorkerThread
     suspend fun insert(transactionTypeModel: TransactionTypeModel) {
+
         dao.insertAll(transactionTypeModel)
     }
 

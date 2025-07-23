@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.Flow
 class UserRepository(val dao : IUserDao) {
     val allUser : Flow<List<UserModel>> = dao.getAll()
 
-    fun getCurrentUser(userId : Int): Flow<List<UserModel>> = dao.loadAllById(userId)
+    @WorkerThread
+    fun getCurrentUser(userId : Int): List<UserModel> = dao.loadAllById(userId)
 
     @WorkerThread
     fun insert(user: UserModel) {

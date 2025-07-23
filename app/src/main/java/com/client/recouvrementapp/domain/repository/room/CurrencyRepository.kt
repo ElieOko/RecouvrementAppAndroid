@@ -6,7 +6,7 @@ import com.client.recouvrementapp.domain.model.room.CurrencyModel
 import kotlinx.coroutines.flow.Flow
 
 class CurrencyRepository(private val currencyDao: ICurrencyDao) {
-    val allCurrency : Flow<List<CurrencyModel>> = currencyDao.getAll()
+    val allCurrency : List<CurrencyModel> = currencyDao.getAll()
 
     @WorkerThread
     suspend fun insert(currencies: CurrencyModel) {

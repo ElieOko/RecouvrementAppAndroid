@@ -7,7 +7,7 @@ import com.client.recouvrementapp.domain.model.room.PeriodModel
 import kotlinx.coroutines.flow.Flow
 
 class PeriodRepository(val dao: IPeriodDao) {
-    val allPeriod : Flow<List<PeriodModel>> = dao.getAll()
+    val allPeriod : List<PeriodModel> = dao.getAll()
 
     @WorkerThread
     suspend fun insert(periodModel: PeriodModel) {

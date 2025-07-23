@@ -8,9 +8,11 @@ import kotlinx.coroutines.flow.Flow
 
 class RecouvrementRepository(private val recouvrementDao: IRecouvrementDao){
 
-    fun allRecouvrement(userId : Int) : Flow<List<RecouvrementWithRelations>> = recouvrementDao.getAll(userId)
+    @WorkerThread
+    fun allRecouvrement(userId : Int) : List<RecouvrementWithRelations> = recouvrementDao.getAll(userId)
 
-    fun allRecouvrementDay(dateCurrent: String, currencyId : Int, userId : Int) : Flow<List<RecouvrementWithRelations>> = recouvrementDao.getRecouvrementToDay(dateCurrent, currencyId, userId)
+    @WorkerThread
+    fun allRecouvrementDay(dateCurrent: String, currencyId : Int, userId : Int) : List<RecouvrementWithRelations> = recouvrementDao.getRecouvrementToDay(dateCurrent, currencyId, userId)
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
