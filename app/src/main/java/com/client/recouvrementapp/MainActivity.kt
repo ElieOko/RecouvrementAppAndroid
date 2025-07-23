@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -21,8 +22,22 @@ import androidx.navigation.compose.rememberNavController
 import com.client.recouvrementapp.domain.connectivity.AndroidConnectivityObserver
 import com.client.recouvrementapp.domain.connectivity.ConnectivityViewModel
 import com.client.recouvrementapp.domain.route.Navigation
-import com.client.recouvrementapp.domain.viewmodel.ParentViewModel
+import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
+import com.client.recouvrementapp.domain.viewmodel.ConfigurationViewModel
+import com.client.recouvrementapp.domain.viewmodel.InstanceRoomViewModel
 import com.client.recouvrementapp.domain.viewmodel.config.PrinterConfigViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModelFactory
+import com.client.recouvrementapp.domain.viewmodel.room.PaymentMethodViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.PaymentMethodViewModelFactory
+import com.client.recouvrementapp.domain.viewmodel.room.PeriodViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.PeriodViewModelFactory
+import com.client.recouvrementapp.domain.viewmodel.room.RecouvrementViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.RecouvrementViewModelFactory
+import com.client.recouvrementapp.domain.viewmodel.room.TransactionTypeViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.TransactionTypeViewModelFactory
+import com.client.recouvrementapp.domain.viewmodel.room.UserViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.UserViewModelFactory
 import com.client.recouvrementapp.presentation.ui.theme.RecouvrementAppTheme
 import com.qs.helper.printer.Device
 import com.qs.helper.printer.PrintService
@@ -31,8 +46,31 @@ import com.qs.helper.printer.bt.BtService
 
 class MainActivity : ComponentActivity() {
     private lateinit var navHostController: NavHostController
-//    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
-//    private lateinit var permissionLauncherMain: ActivityResultLauncher<Intent>
+
+    private val userViewModel: UserViewModel by viewModels {
+        UserViewModelFactory((application as RecouvrementApplication).userRepository)
+    }
+
+    private val periodViewModel: PeriodViewModel by viewModels {
+        PeriodViewModelFactory((application as RecouvrementApplication).periodRepository)
+    }
+
+    private val currencyViewModel: CurrencyViewModel by viewModels {
+        CurrencyViewModelFactory((application as RecouvrementApplication).currencyRepository)
+    }
+
+    private val paymentMethodViewModel: PaymentMethodViewModel by viewModels {
+        PaymentMethodViewModelFactory((application as RecouvrementApplication).paymentMethodRepository)
+    }
+
+    private val transactionTypeViewModel: TransactionTypeViewModel by viewModels {
+        TransactionTypeViewModelFactory((application as RecouvrementApplication).transactionTypeRepository)
+    }
+
+    private val recouvrementViewModel: RecouvrementViewModel by viewModels {
+        RecouvrementViewModelFactory((application as RecouvrementApplication).recouvrementRepository)
+    }
+
     var mhandler: Handler? = null
     var handler: Handler? = null
     val MESSAGE_STATE_CHANGE: Int = 1
@@ -41,7 +79,8 @@ class MainActivity : ComponentActivity() {
     val MESSAGE_DEVICE_NAME: Int = 4
     lateinit var bluetoothStatus : String
     var checkState: Boolean = true
-    var tv_update: Thread? = null
+    var tvUpdate: Thread? = null
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,26 +88,42 @@ class MainActivity : ComponentActivity() {
         setContent {
             navHostController = rememberNavController()
             RecouvrementAppTheme {
-                val vm = viewModel<ParentViewModel>()
-                vm.vmPrinterConfig = viewModel<PrinterConfigViewModel>()
-                val viewModel = viewModel<ConnectivityViewModel> {
+                val printerViewModel = viewModel<PrinterConfigViewModel>()
+                val connectivityViewModel = viewModel<ConnectivityViewModel> {
                     ConnectivityViewModel(
                         connectivityObserver = AndroidConnectivityObserver(
                             context = applicationContext
                         )
                     )
                 }
-                val isConnected by viewModel.isConnected.collectAsStateWithLifecycle()
-                initPrinterService(vm)
+                val isConnected by connectivityViewModel.isConnected.collectAsStateWithLifecycle()
+                val applicationViewModel = viewModel<ApplicationViewModel>{
+                    ApplicationViewModel(
+                        roomVm = InstanceRoomViewModel(
+                            periodViewModel = periodViewModel,
+                            transactionTypeViewModel = transactionTypeViewModel,
+                            currencyViewModel = currencyViewModel,
+                            userViewModel = userViewModel,
+                            recouvrementViewModel = recouvrementViewModel,
+                            paymentMethodViewModel = paymentMethodViewModel
+                        ),
+                        configurationVm = ConfigurationViewModel(
+                            printerViewModel = printerViewModel,
+                            isConnectNetworkState = isConnected
+                        )
+                    )
+                }
+
+                initPrinterService(printerViewModel)
                 PrintService.pl = BtService(this, mhandler, handler)
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Navigation(navHostController,innerPadding, vm, isConnected)
+                Scaffold(modifier = Modifier.fillMaxSize()) {
+                    Navigation(navHostController,applicationViewModel)
                 }
             }
         }
 
     }
-    private fun initPrinterService(vm: ParentViewModel) {
+    private fun initPrinterService(vm: PrinterConfigViewModel) {
         handler = @SuppressLint("HandlerLeak")
         object : Handler() {
             override fun handleMessage(msg: Message) {
@@ -77,8 +132,8 @@ class MainActivity : ComponentActivity() {
                     0 -> {}
                     1 -> {
                         val d = msg.obj as Device
-                        if (!checkData(vm.vmPrinterConfig?.deviceList , d)) {
-                            vm.vmPrinterConfig?.addDevice(d)
+                        if (!checkData(vm.deviceList , d)) {
+                            vm.addDevice(d)
                         }
                     }
                     2 -> {}
@@ -93,8 +148,7 @@ class MainActivity : ComponentActivity() {
                     MainActivity().MESSAGE_READ -> {
                         val readBuf = msg.obj as ByteArray
                         val readMessage = String(readBuf, 0, msg.arg1)
-                        // Log.i(MainActivity.TAG, "readMessage=" + readMessage)
-                        //  Log.i(MainActivity.TAG, "readBuf:" + readBuf[0])
+
                         if (readBuf[0].toInt() == 0x13) {
                             PrintService.isFUll = true
 
@@ -104,7 +158,7 @@ class MainActivity : ComponentActivity() {
                         } else if (readBuf[0].toInt() == 0x08) {
 
                         } else if (readBuf[0].toInt() == 0x01) {
-                            //ShowMsg(getResources().getString(R.string.str_printer_state)+":"+getResources().getString(R.string.str_printer_printing));
+
                         } else if (readBuf[0].toInt() == 0x04) {
 
                         } else if (readBuf[0].toInt() == 0x02) {
@@ -121,7 +175,7 @@ class MainActivity : ComponentActivity() {
                             {
                                 PrintService.imageWidth = 48
                                 Toast.makeText(
-                                    getApplicationContext(), "58mm",
+                                    applicationContext, "58mm",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -137,8 +191,6 @@ class MainActivity : ComponentActivity() {
 
                         PrinterClass.STATE_LISTEN, PrinterClass.STATE_NONE -> {}
                         PrinterClass.SUCCESS_CONNECT -> {
-                            /*PrintService.pl.write([] { 0x1b, 0x2b }); */
-
                             try {
                                 Thread.sleep(10)
                             } catch (e: InterruptedException) {
@@ -166,7 +218,7 @@ class MainActivity : ComponentActivity() {
                 super.handleMessage(msg)
             }
         }
-        tv_update = object : Thread() {
+        tvUpdate = object : Thread() {
             override fun run() {
                 while (true) {
                     if (checkState) {
@@ -194,13 +246,11 @@ class MainActivity : ComponentActivity() {
                                 bluetoothStatus = "not connected"
                             }
                         }
-                        //}
-
                     }
                 }
             }
         }
-        tv_update!!.start()
+        tvUpdate!!.start()
     }
 
     private fun checkData(list: MutableList<Device?>?, d: Device): Boolean {
