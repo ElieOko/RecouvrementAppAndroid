@@ -21,4 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "RecouvrementApp"
 include(":app")
-include(":sunmiprinterutill")
