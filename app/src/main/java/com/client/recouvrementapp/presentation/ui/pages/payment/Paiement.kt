@@ -53,13 +53,14 @@ import androidx.navigation.NavHostController
 import com.client.recouvrementapp.presentation.components.elements.InputField
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.client.recouvrementapp.R
+import com.client.recouvrementapp.core.dateISOConvert
 import com.client.recouvrementapp.data.local.Constantes.Companion.convertMillisToDate
 import com.client.recouvrementapp.data.local.Constantes.Companion.cotisationOrdinaireId
 import com.client.recouvrementapp.data.local.Constantes.Companion.cotisationSpesmId
-import com.client.recouvrementapp.data.local.Constantes.Companion.paymentMethodRoute
 import com.client.recouvrementapp.data.local.Constantes.Companion.recouvrementRoute
 import com.client.recouvrementapp.data.local.Constantes.Companion.subscriptionId
 import com.client.recouvrementapp.data.remote.requestServer
+import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.model.ResponseHttpRequest
 import com.client.recouvrementapp.domain.model.ResponseHttpRequestPayment
 import com.client.recouvrementapp.domain.model.core.Recouvrement
@@ -67,7 +68,8 @@ import com.client.recouvrementapp.domain.model.core.TransactionType
 import com.client.recouvrementapp.domain.model.room.CurrencyModel
 import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 import com.client.recouvrementapp.domain.model.room.PeriodModel
-import com.client.recouvrementapp.domain.route.ScreenRoute
+import com.client.recouvrementapp.domain.model.room.RecouvrementModel
+import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.elements.InputFieldCompose
 import com.client.recouvrementapp.presentation.components.elements.Label
@@ -78,6 +80,8 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -99,13 +103,13 @@ fun PaiementBody(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val channel = Channel<UserModel>()
     var remarks by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
-    var paymentDate by remember { mutableStateOf("") }
-    var transactionTypeId by remember { mutableStateOf(10) }
+    var transactionTypeId by remember { mutableIntStateOf(10) }
     var periodId by remember { mutableIntStateOf(0) }
-    var currencyId by remember { mutableStateOf(0) }
-    var paymentTypeId by remember { mutableStateOf(0) }
+    var currencyId by remember { mutableIntStateOf(0) }
+    var paymentTypeId by remember { mutableIntStateOf(0) }
     var period: String by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
     var device: String by remember { mutableStateOf("") }
@@ -114,7 +118,7 @@ fun PaiementBody(
     var showDatePicker by remember { mutableStateOf(false) }
     var isActive by remember { mutableStateOf(true) }
     val datePickerState = rememberDatePickerState()
-
+    val listRecouvrementAll = vm?.room?.recouvrement?.listRecouvrementAll?.collectAsState()
     var msg: String? by remember { mutableStateOf("") }
     var titleMsg by remember { mutableStateOf("Erreur") }
     var isShow by remember { mutableStateOf(false) }
@@ -125,23 +129,17 @@ fun PaiementBody(
     val paymentMethodList   = vm?.room?.paymentMethod?.listPaymentMethod?.collectAsState()
     val periodeList         = vm?.room?.period?.listPeriod?.collectAsState()
     val currencyList        = vm?.room?.currency?.listCurrencies?.collectAsState()
+    val stateSave           = vm?.room?.recouvrement?.stateSave?.collectAsState()
 
     CoroutineScope(Dispatchers.IO).launch {
         vm?.room?.paymentMethod?.getAllPaymentMethod()
         vm?.room?.currency?.getAllCurrencies()
         vm?.room?.period?.getAllPeriod()
+        //vm?.room?.recouvrement?.getAllRecouvrement()
+        StoreData(context).getUser.collect {
+            channel.send(UserModel(it.profile.id,it.profile.displayName,it.profile.username))
+        }
     }
-//    scope.launch {
-//        paymentMethodList?.value?.let {
-//            paymentMethod= paymentMethodList.value[0].name
-//        }
-//        currencyList?.value?.let {
-//            device = currencyList.value[0].name
-//        }
-//        periodeList?.value?.let {
-//            period = periodeList.value[0].name
-//        }
-//    }
 
     Scaffold(
         topBar = {
@@ -157,7 +155,7 @@ fun PaiementBody(
 //                Label("Type de transaction", color = Color.Black, size = 18 )
                 Text(buildAnnotatedString {
                     append("Type de transaction ")
-                    withStyle(style = SpanStyle(color = Color.Red,fontFamily = FontFamily.Serif,)) {
+                    withStyle(style = SpanStyle(color = Color.Red,fontFamily = FontFamily.Serif)) {
                         append("*")
                     }},fontSize = 18.sp)
                 SelectInputField(
@@ -165,13 +163,14 @@ fun PaiementBody(
                     textValueIn = transactionType,
                     onChangeText={
                         transactionTypeId = it.id
+                        transactionType = it.name
                     },
                     icon = R.drawable.type
                 )
                 Space(y = 10)
                 Text(buildAnnotatedString {
                     append("Communication ")
-                    withStyle(style = SpanStyle(color = Color.Red,fontFamily = FontFamily.Serif,)) {
+                    withStyle(style = SpanStyle(color = Color.Red,fontFamily = FontFamily.Serif)) {
                         append("*")
                     }}, color = Color.Black, fontSize = 18.sp )
                 InputField(
@@ -188,7 +187,7 @@ fun PaiementBody(
                     Column {
                         Text(buildAnnotatedString {
                             append("Montant ")
-                            withStyle(style = SpanStyle(color = Color.Red,fontFamily = FontFamily.Serif,)) {
+                            withStyle(style = SpanStyle(color = Color.Red,fontFamily = FontFamily.Serif)) {
                                 append("*")
                             }}, color = Color.Black, fontSize = 18.sp )
                         InputField(
@@ -204,7 +203,7 @@ fun PaiementBody(
                     }
                     Space(x=10)
                     Column {
-                        Label("Devise", color = Color.Black, size = 18,)
+                        Label("Devise", color = Color.Black, size = 18)
                         SelectInputField(
                             modifier = Modifier.width(168.dp),
                             itemList = CurrencyModel().asDataSelect(currencyList?.value),
@@ -225,7 +224,7 @@ fun PaiementBody(
                             SelectInputField(
                                 modifier = Modifier,
                                 itemList = PeriodModel().asDataSelect(periodeList?.value),
-                                textValueIn = period.toString(),
+                                textValueIn = period,
                                 onChangeText={
                                     periodId = it.id
                                 },
@@ -254,7 +253,7 @@ fun PaiementBody(
                 Label("Methode de paiement", color = Color.Black, size = 18 )
                 SelectInputField(
                     itemList = PaymentMethodModel().asDataSelect(paymentMethodList?.value),
-                    textValueIn = paymentMethod.toString(),
+                    textValueIn = paymentMethod,
                     onChangeText={
                         paymentTypeId = it.id
                     },
@@ -293,15 +292,15 @@ fun PaiementBody(
                                 msg = "montant n'est pas renseigné"
                                 titleMsg = "Champs vide"
                             }
-
                             if (transactionType.isEmpty()){
                                 isShow = true
                                 msg = "transactionType n'est pas renseigné"
                                 titleMsg = "Champs vide"
                             }
                             if (transactionType.isNotEmpty() && amount.isNotEmpty() && code.isNotEmpty() && currencyId != 0){
-                                when(transactionTypeId){
-                                    cotisationSpesmId,cotisationOrdinaireId ->{
+                                when(transactionType){
+                                    "Cotisation Ordinaire","Cotisation Ordinaire" ->{
+                                        Log.e("1 transactionTypeId","$transactionTypeId")
                                         if (periodId == 0){
                                             isShow = true
                                             titleMsg = "Champs vide"
@@ -312,11 +311,17 @@ fun PaiementBody(
                                                 communication = code,
                                                 amount = amount.toInt(),
                                                 currencyId = currencyId,
-                                                paymentMethodId = paymentTypeId
+                                                paymentMethodId = paymentTypeId,
+                                                periodId = periodId
                                             )
                                             scope.launch {
                                                 isActive = false
+                                                //delay(2000)
+                                                Log.e("_ici transactionTypeId","$transactionTypeId")
+
+                                                val userModel = channel.receive()
                                                 try {
+                                                    Log.e("_before request transactionTypeId","$transactionTypeId")
                                                     val response = requestServer(
                                                         context = context,
                                                         route = recouvrementRoute,
@@ -324,25 +329,44 @@ fun PaiementBody(
                                                         method = "POST"
                                                     )
                                                     val status = response.status.value
+                                                    //isActive = false
+                                                    Log.e("_after transactionTypeId","$transactionTypeId")
                                                     when(status){
                                                         in 200..299-> {
-                                                          val data = response.body<ResponseHttpRequestPayment>()
+                                                            titleMsg = "success"
+                                                            msg = "Enregistrement réussie avec succès"
                                                             isShow = true
                                                             isActive = true
-                                                            titleMsg = "Success"
-                                                            msg = data.createdOn
+                                                            val data = response.body<ResponseHttpRequestPayment>()
+                                                            val dateTimeModel = dateISOConvert(data.createdOn)
+                                                            scope.launch{
+                                                                vm.room.recouvrement.insert(RecouvrementModel(
+                                                                    id = data.id,
+                                                                    userId =  userModel.id,
+                                                                    paymentMethodId = recouvrement.paymentMethodId,
+                                                                    periodId = periodId,
+                                                                    currencyId = recouvrement.currencyId,
+                                                                    transactionType = transactionType,
+                                                                    code = code,
+                                                                    amount = amount.toInt(),
+                                                                    remark = remarks,
+                                                                    datePayment = "",
+                                                                    createdOn = dateTimeModel.date,
+                                                                    time = dateTimeModel.time
+                                                                ))
+                                                            }
                                                         }
                                                         in 400 .. 499 ->{
-                                                            val data = response.body<ResponseHttpRequest>()
                                                             isShow = true
                                                             titleMsg = "Erreur"
                                                             isActive = true
+                                                            val data = response.body<ResponseHttpRequest>()
                                                             msg = data.message
                                                         }
                                                         in 500 .. 599 ->{
-                                                            isActive = true
                                                             titleMsg = "Erreur serveur"
                                                             msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                            isActive = true
                                                             isShow = true
                                                         }
                                                     }
@@ -350,13 +374,13 @@ fun PaiementBody(
                                                     msg         = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
                                                     titleMsg    = "Request expire"
                                                     isShow      = true
-                                                    isActive = true
+                                                    isActive    = true
                                                     Log.e("Network expired request ->",e.message.toString())
                                                 }
                                             }
                                         }
                                     }
-                                    subscriptionId->{
+                                    "Subscription"->{
                                         if (selectedDate.isEmpty()){
                                             isShow = true
                                             titleMsg = "Champs vide"
@@ -371,6 +395,7 @@ fun PaiementBody(
                                             )
                                             scope.launch {
                                                 isActive = false
+                                                val userModel = channel.receive()
                                                 try {
                                                     val response = requestServer(
                                                         context = context,
@@ -378,24 +403,39 @@ fun PaiementBody(
                                                         data = recouvrement,
                                                         method = "POST"
                                                     )
+                                                    isActive = true
                                                     val status = response.status.value
                                                     when(status){
                                                         in 200..299-> {
-                                                            val data = response.body<ResponseHttpRequestPayment>()
                                                             isShow = true
-                                                            isActive = true
-                                                            titleMsg = "Success"
-                                                            msg = data.createdOn
+                                                            titleMsg = "success"
+                                                            msg = "Enregistrement réussie avec succès"
+                                                            val data = response.body<ResponseHttpRequestPayment>()
+                                                            val dateTimeModel = dateISOConvert(data.createdOn)
+                                                            scope.launch{
+                                                                vm.room.recouvrement.insert(RecouvrementModel(
+                                                                    id = data.id,
+                                                                    userId =  userModel.id,
+                                                                    paymentMethodId = recouvrement.paymentMethodId,
+                                                                    periodId = null,
+                                                                    currencyId = recouvrement.currencyId,
+                                                                    transactionType = transactionType,
+                                                                    code = code,
+                                                                    amount = amount.toInt(),
+                                                                    remark = remarks,
+                                                                    datePayment = "",
+                                                                    createdOn = dateTimeModel.date,
+                                                                    time = dateTimeModel.time
+                                                                ))
+                                                            }
                                                         }
                                                         in 400 .. 499 ->{
                                                             val data = response.body<ResponseHttpRequest>()
-                                                            isShow = true
                                                             titleMsg = "Erreur"
-                                                            isActive = true
                                                             msg = data.message
+                                                            isShow = true
                                                         }
                                                         in 500 .. 599 ->{
-                                                            isActive = true
                                                             titleMsg = "Erreur serveur"
                                                             msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
                                                             isShow = true
@@ -405,47 +445,65 @@ fun PaiementBody(
                                                     msg         = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
                                                     titleMsg    = "Request expire"
                                                     isShow      = true
-                                                    isActive = true
+                                                    isActive    = true
                                                     Log.e("Network expired request ->",e.message.toString())
                                                 }
                                             }
                                         }
                                     }
                                     else -> {
+                                        val recouvrement = Recouvrement(
+                                            transactionType = transactionType,
+                                            communication = code,
+                                            amount = amount.toInt(),
+                                            currencyId = currencyId,
+                                            paymentMethodId = paymentTypeId,
+                                            periodId = periodId
+                                        )
                                         scope.launch {
                                             isActive = false
+                                            val userModel = channel.receive()
                                             try {
-                                                val recouvrement = Recouvrement(
-                                                    transactionType = transactionType,
-                                                    communication = code,
-                                                    amount = amount.toInt(),
-                                                    currencyId = currencyId,
-                                                    paymentMethodId = paymentTypeId
-                                                )
                                                 val response = requestServer(
                                                     context = context,
                                                     route = recouvrementRoute,
                                                     data = recouvrement,
                                                     method = "POST"
                                                 )
+                                                isActive = true
                                                 val status = response.status.value
+                                                Log.e("_after transactionTypeId","$transactionTypeId")
                                                 when(status){
                                                     in 200..299-> {
-                                                        val data = response.body<ResponseHttpRequestPayment>()
+                                                        titleMsg = "success"
+                                                        msg = "Enregistrement réussie avec succès"
                                                         isShow = true
-                                                        isActive = true
-                                                        titleMsg = "Success"
-                                                        msg = data.createdOn
+                                                        val data = response.body<ResponseHttpRequestPayment>()
+                                                        val dateTimeModel = dateISOConvert(data.createdOn)
+                                                        scope.launch{
+                                                            vm.room.recouvrement.insert(RecouvrementModel(
+                                                                id = data.id,
+                                                                userId =  userModel.id,
+                                                                paymentMethodId = recouvrement.paymentMethodId,
+                                                                periodId = null,
+                                                                currencyId = recouvrement.currencyId,
+                                                                transactionType = transactionType,
+                                                                code = code,
+                                                                amount = amount.toInt(),
+                                                                remark = remarks,
+                                                                datePayment = "",
+                                                                createdOn = dateTimeModel.date,
+                                                                time = dateTimeModel.time
+                                                            ))
+                                                        }
                                                     }
                                                     in 400 .. 499 ->{
                                                         val data = response.body<ResponseHttpRequest>()
                                                         isShow = true
                                                         titleMsg = "Erreur"
-                                                        isActive = true
                                                         msg = data.message
                                                     }
                                                     in 500 .. 599 ->{
-                                                        isActive = true
                                                         titleMsg = "Erreur serveur"
                                                         msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
                                                         isShow = true
@@ -455,7 +513,7 @@ fun PaiementBody(
                                                 msg         = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
                                                 titleMsg    = "Request expire"
                                                 isShow      = true
-                                                isActive = true
+                                                isActive    = true
                                                 Log.e("Network expired request ->",e.message.toString())
                                             }
                                         }
@@ -468,9 +526,11 @@ fun PaiementBody(
                             titleMsg = "Problème de connexion"
                             isShow = true
                         }
+
 //                        navC?.navigate(route = ScreenRoute.PaymentPrinter.name)
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = isActive,
                     colors = ButtonDefaults.buttonColors(
                         containerColor =  Color(0xFF15D77D),
                         disabledContentColor = Color(0xFF080624),
@@ -478,7 +538,7 @@ fun PaiementBody(
                     )
                 ) {
                     if(isActive){
-                        Text(text = "Se Sauvegarder", fontSize = 16.sp, color = Color.White)
+                        Text(text = "Enregistrer", fontSize = 16.sp, color = Color.White)
                         Space(x = 10)
                         Icon(painterResource(R.drawable.save),null, modifier = Modifier.size(24.dp))
                     }

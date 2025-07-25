@@ -16,6 +16,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
+import com.client.recouvrementapp.data.local.Constantes.Companion.convertMillisToDate
 import com.client.recouvrementapp.data.local.Constantes.Companion.currencyRoute
 import com.client.recouvrementapp.data.local.Constantes.Companion.paymentMethodRoute
 import com.client.recouvrementapp.data.local.Constantes.Companion.periodOpenRoute
@@ -84,10 +87,14 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
     val isShow = remember { mutableStateOf(false) }
     var titleMsg = ""
     var msg = ""
+    var requestCount = remember { mutableStateOf(0) }
     val user = remember { mutableStateListOf<ProfilUser?>() }
     val channelUser = Channel<ProfilUser>()
+    val listRecouvrementAmountOfDay = vm?.room?.recouvrement?.listRecouvrementToday?.collectAsState()
+    val listRecouvrementAmountOfDayCDF = vm?.room?.recouvrement?.listRecouvrementTodayCDF?.collectAsState()
     var textPositive = "Valider"
     var textNegative = "Annuler"
+    val dateCurrent = convertMillisToDate(System.currentTimeMillis())
     val listOfRecouvrementDay = listOf<RecouvrementAmountOfDay>(
         RecouvrementAmountOfDay(
             currency = Currency(1,"Dollar", "USD","$"),
@@ -113,116 +120,128 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
         })
     )
     var onclick : () -> Unit = {}
-    if (vm?.configuration?.isConnectNetwork == true){
+    LaunchedEffect(Unit){
+        scope.launch {
+            StoreData(context).getUser.collect { u ->
+                user.add(u)
+                requestCount.value = 1
+                vm?.room?.recouvrement?.getAllRecouvrementToDay(dateCurrent,1,user[0]!!.profile.id)
+                vm?.room?.recouvrement?.getAllRecouvrementToDayCDF(dateCurrent,2,user[0]!!.profile.id)
+                Log.e("today ->","${listRecouvrementAmountOfDay?.value}")
+            }
+        }
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val responseCurrency = requestServer(
-                context = context,
-                route = currencyRoute
-            )
-            Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
-            val status = responseCurrency.status.value
-            when(status){
-                in 200..299 ->{
-                    //
-                    val data : ArrayList<KeyValue> = responseCurrency.body()
-                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
-                    scope.launch {
-                        data.forEach {currency->
-                            when(currency.id){
-                                1->{
-                                    val currencyModel = CurrencyModel(
-                                        id = currency.id,
-                                        name = currency.name,
-                                        code = "USD",
-                                        symbole = "$"
-                                    )
-                                    vm.room.currency.insert(currencyModel)
+
+
+
+        if (vm?.configuration?.isConnectNetwork == true){
+            scope.launch {
+                val responseCurrency = requestServer(
+                    context = context,
+                    route = currencyRoute
+                )
+                Log.e("REQUEST->>>>>>>>>>>>>>>>","$responseCurrency")
+
+                val status = responseCurrency.status.value
+                when(status){
+                    in 200..299 ->{
+                        //
+                        val data : ArrayList<KeyValue> = responseCurrency.body()
+                        Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                        scope.launch {
+                            data.forEach {currency->
+                                when(currency.id){
+                                    1->{
+                                        val currencyModel = CurrencyModel(
+                                            id = currency.id,
+                                            name = currency.name,
+                                            code = "USD",
+                                            symbole = "$"
+                                        )
+                                        vm.room?.currency?.insert(currencyModel)
+                                    }
+                                    2->{
+                                        val currencyModel = CurrencyModel(
+                                            id = currency.id,
+                                            name = currency.name,
+                                            code = "CDF",
+                                            symbole = "Fc"
+                                        )
+                                        vm.room?.currency?.insert(currencyModel)
+                                    }
+                                    else ->{
+                                        val currencyModel = CurrencyModel(
+                                            id = currency.id,
+                                            name = currency.name
+                                        )
+                                        vm.room?.currency?.insert(currencyModel)
+                                    }
                                 }
-                                2->{
-                                    val currencyModel = CurrencyModel(
-                                        id = currency.id,
-                                        name = currency.name,
-                                        code = "CDF",
-                                        symbole = "Fc"
-                                    )
-                                    vm.room.currency.insert(currencyModel)
-                                }
-                                else ->{
-                                    val currencyModel = CurrencyModel(
-                                        id = currency.id,
-                                        name = currency.name
-                                    )
-                                    vm.room.currency.insert(currencyModel)
-                                }
+
+
                             }
-
-
                         }
                     }
-                }
-                in 400..499->{
+                    in 400..499->{
 
+                    }
                 }
             }
-        }
+            scope.launch {
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val responseTypePaymentMethod = requestServer(
-                context = context,
-                route = paymentMethodRoute
-            )
-            val status = responseTypePaymentMethod.status.value
-            when(status){
-                in 200..299 ->{
-                    val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
-                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
-                    scope.launch {
-                        data.forEach {typePaymentMethod->
-                            val paymentModel = PaymentMethodModel(
-                                id      = typePaymentMethod.id,
-                                name    = typePaymentMethod.name
-                            )
-                            vm.room.paymentMethod.insert(paymentModel)
+                val responseTypePaymentMethod = requestServer(
+                    context = context,
+                    route = paymentMethodRoute
+                )
+                val status = responseTypePaymentMethod.status.value
+                when(status){
+                    in 200..299 ->{
+                        val data : ArrayList<KeyValue> = responseTypePaymentMethod.body()
+                        Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
+                        scope.launch {
+                            data.forEach {typePaymentMethod->
+                                val paymentModel = PaymentMethodModel(
+                                    id      = typePaymentMethod.id,
+                                    name    = typePaymentMethod.name
+                                )
+                                vm.room?.paymentMethod?.insert(paymentModel)
+                            }
                         }
                     }
-                }
-                in 400..499->{
+                    in 400..499->{
 
+                    }
                 }
             }
-        }
+            scope.launch {
+                val responsePeriod = requestServer(
+                    context = context,
+                    route = periodOpenRoute
+                )
+                val status = responsePeriod.status.value
+                when(status){
+                    in 200..299 ->{
+                        val data : ArrayList<KeyValue> = responsePeriod.body()
+                        Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val responsePeriod = requestServer(
-                context = context,
-                route = periodOpenRoute
-            )
-            val status = responsePeriod.status.value
-            when(status){
-                in 200..299 ->{
-                    val data : ArrayList<KeyValue> = responsePeriod.body()
-                    Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
-
-                    scope.launch {
-                        data.forEach {period->
-                            val periodModel = PeriodModel(
-                                id      = period.id,
-                                name    = period.name
-                            )
-                            vm.room.period.insert(periodModel)
+                        scope.launch {
+                            data.forEach {period->
+                                val periodModel = PeriodModel(
+                                    id      = period.id,
+                                    name    = period.name
+                                )
+                                vm.room?.period?.insert(periodModel)
+                            }
+                            Log.e("save periode>>>","$$$$$")
                         }
-                        Log.e("save periode>>>","$$$$$")
                     }
-                }
-                in 400..499->{
+                    in 400..499->{
 
+                    }
                 }
             }
         }
     }
-
-
     Scaffold(
         topBar = {
             if (user.isNotEmpty()){
@@ -241,37 +260,14 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
             }
         }
     ) {
+
         scope.launch {
-            StoreData(context).getUser.collect { u ->
-               // channelUser.send(u)
-                user.add(u)
-            }
-//            val u = channelUser.receive()
-//            user.add(u)
-        }
-        //CoroutineScope(Dispatchers.IO)
-        scope.launch {
-//            val responseCurrency = requestServer(
-//                context = context,
-//                route = currencyRoute
-//            )
             Log.e("REQUEST->>>>>>>>>>>>>>>>","Elie Oko")
-           // Toast.makeText(context,"test->${responseCurrency.status.value}", Toast.LENGTH_SHORT).show()
         }
-
-
-//           // Toast.makeText(context,"test->${responseCurrency.status.value}", Toast.LENGTH_SHORT).show()
-////            when(responseCurrency.status.value){
-////                in 200..299 ->{
-////                    //
-////                    val res = responseCurrency.body<Array<KeyValue>>()
-////                    Toast.makeText(context,res[0].name, Toast.LENGTH_SHORT).show()
-////                }
-////                in 400..499->{
-////
-////                }
-////            }
+//        if (user.isNotEmpty() && requestCount.value == 1){
+//
 //        }
+
         Column(Modifier.padding(it)) {
             Column(Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                 Space(y = 150)
@@ -287,7 +283,6 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                 modifier = Modifier.fillMaxSize()
             ) {
                 ConstraintLayout {
-                    // Create references for the composables to constrain
                     val (card, buttonLink) = createRefs()
                     Card(
                         modifier = Modifier
@@ -304,7 +299,10 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                             navC?.navigate(route = ScreenRoute.History.name)
                         },
                         width = sizeWidth + 100,
-                        listRecouvrementAmountOfDay = listOfRecouvrementDay
+                        listRecouvrementAmountOfDay = listOf(RecouvrementAmountOfDay(currency =  Currency(1,"Dollar", "USD","$"), amount = listRecouvrementAmountOfDay?.value?.toDouble()
+                            ?: 0.0),
+                                RecouvrementAmountOfDay(currency =  Currency(2,"Franc Congolais", "CDF","Fc"), amount = listRecouvrementAmountOfDayCDF?.value?.toDouble()
+                            ?: 0.0))
                     )
                 }
             }
