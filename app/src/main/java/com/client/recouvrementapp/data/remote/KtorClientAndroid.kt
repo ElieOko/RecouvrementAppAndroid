@@ -163,9 +163,11 @@ suspend fun requestServer(context : Context, data : Any = {}, route : String, me
     val channel = Channel<TokenModel>()
     CoroutineScope(Dispatchers.IO).launch {
         StoreData(context).getUser.collect {
-            channel.send(TokenModel(it.access_token,it.token_type))
-            Log.i("request server ->","Elie Oko")
-            Log.i("request server ->","$")
+            if (it.access_token.isNotEmpty()){
+                channel.send(TokenModel(it.access_token,it.token_type))
+                Log.i("request server ->","Elie Oko")
+                Log.i("request server ->","$")
+            }
         }
     }
     val tokenModel = channel.receive()

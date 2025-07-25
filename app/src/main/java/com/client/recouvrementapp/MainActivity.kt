@@ -2,10 +2,13 @@ package com.client.recouvrementapp
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.Build.VERSION
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.widget.Toast
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.os.BuildCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -80,6 +84,8 @@ class MainActivity : ComponentActivity() {
     lateinit var bluetoothStatus : String
     var checkState: Boolean = true
     var tvUpdate: Thread? = null
+    private var backPressedTime: Long = 0
+    private lateinit var toast: Toast
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,6 +119,14 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 }
+                applicationViewModel.room.period = periodViewModel
+                applicationViewModel.room.transactionType = transactionTypeViewModel
+                applicationViewModel.room.currency = currencyViewModel
+                applicationViewModel.room.period = periodViewModel
+                applicationViewModel.room.user = userViewModel
+                applicationViewModel.room.recouvrement = recouvrementViewModel
+                applicationViewModel.room.paymentMethod = paymentMethodViewModel
+                applicationViewModel.configuration.printer = printerViewModel
                 applicationViewModel.configuration.isConnectNetwork = isConnected
                 initPrinterService(printerViewModel)
                 PrintService.pl = BtService(this, mhandler, handler)
@@ -121,7 +135,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        onBackInvokedDispatcher.registerOnBackInvokedCallback(
+            OnBackInvokedDispatcher.PRIORITY_DEFAULT
+        ) {
+            val currentTime = System.currentTimeMillis()
 
+            if (currentTime - backPressedTime < 2000) {
+                if (::toast.isInitialized) toast.cancel()
+                finish() // ferme l'activité
+            } else {
+                toast = Toast.makeText(this@MainActivity, "Appuyez encore pour quitter", Toast.LENGTH_SHORT)
+                toast.show()
+                backPressedTime = currentTime
+            }
+        }
     }
     private fun initPrinterService(vm: PrinterConfigViewModel) {
         handler = @SuppressLint("HandlerLeak")

@@ -1,5 +1,6 @@
 package com.client.recouvrementapp.domain.repository.room
 
+import android.util.Log
 import androidx.annotation.WorkerThread
 import com.client.recouvrementapp.domain.interfaces.room.IRecouvrementDao
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
@@ -9,15 +10,28 @@ import kotlinx.coroutines.flow.Flow
 class RecouvrementRepository(private val recouvrementDao: IRecouvrementDao){
 
     @WorkerThread
-    fun allRecouvrement(userId : Int) : List<RecouvrementWithRelations> = recouvrementDao.getAll(userId)
+    fun allRecouvrement(userId : Int) : Flow<List<RecouvrementWithRelations>> = recouvrementDao.getAll(userId)
 
     @WorkerThread
-    fun allRecouvrementDay(dateCurrent: String, currencyId : Int, userId : Int) : List<RecouvrementWithRelations> = recouvrementDao.getRecouvrementToDay(dateCurrent, currencyId, userId)
+    fun getDetailRecouvrement(recouvrementId : Int) : Flow<RecouvrementWithRelations> = recouvrementDao.getDetailRecouvrement(recouvrementId)
+
+    @WorkerThread
+    fun allRecouvrement() : Flow<List<RecouvrementWithRelations>> {
+        Log.e("repository get =>","${recouvrementDao.getAll()}")
+        return recouvrementDao.getAll()
+    }
+
+    @WorkerThread
+    fun allRecouvrementDay(dateCurrent: String, currencyId : Int, userId : Int) : Int? = recouvrementDao.getRecouvrementToDay(dateCurrent, currencyId, userId)
+
+    @WorkerThread
+    fun allRecouvrementDayCDF(dateCurrent: String, currencyId : Int, userId : Int) : Int? = recouvrementDao.getRecouvrementToDayCDF(dateCurrent, currencyId, userId)
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(recouvrement: RecouvrementModel) {
-        recouvrementDao.insertAll(recouvrement)
+    suspend fun insert(recouvrement: RecouvrementModel): Long {
+        Log.e("repository =>","$recouvrement")
+        return recouvrementDao.insertAll(recouvrement)
     }
 
     @Suppress("RedundantSuspendModifier")

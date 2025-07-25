@@ -2,7 +2,6 @@ package com.client.recouvrementapp.domain.route
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -33,8 +32,9 @@ fun Navigation(
         composable(ScreenRoute.History.name) {
             HistoryRecouvrement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
-        composable(ScreenRoute.Detail.name) {
-            DetailRecouvrement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
+        composable(ScreenRoute.Detail.name+ "/{id}") {navBackStack ->
+            val recouvementId = navBackStack.arguments?.getString("id")?.toInt()
+            DetailRecouvrement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal,recouvementId)
         }
         composable(ScreenRoute.Payment.name) {
             Paiement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)

@@ -7,35 +7,29 @@ import androidx.room.Relation
 data class RecouvrementWithRelations(
 
     @Embedded
-    val recouvrement: RecouvrementModel,
+    val recouvrement: RecouvrementModel?=null,
 
     @Relation(
         parentColumn = "user_id",
         entityColumn = "user_id"
     )
-    val user: UserModel,
+    val user: UserModel?=null,
 
     @Relation(
         parentColumn = "payment_method_id",
         entityColumn = "payment_method_id"
     )
-    val paymentMethod: PaymentMethodModel,
+    val paymentMethod: PaymentMethodModel?=null,
 
     @Relation(
         parentColumn = "currency_id",
         entityColumn = "currency_id"
     )
-    val currency: CurrencyModel,
+    val currency: CurrencyModel?=null,
 
     @Relation(
         parentColumn = "period_id",
         entityColumn = "period_id"
     )
-    val period: PeriodModel?,
-
-    @Relation(
-        parentColumn = "transaction_type_id",
-        entityColumn = "transaction_type_id"
-    )
-    val transactionType: TransactionTypeModel
+    val period: PeriodModel?=null,
 )

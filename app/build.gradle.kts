@@ -18,6 +18,19 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                arguments += "room.incremental" to "true"
+//            }
+//        }
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas"
+                )
+            }
+        }
+
     }
 
     buildTypes {
@@ -41,6 +54,9 @@ android {
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
 dependencies {
     implementation(files("libs/Printer7002.jar"))
     implementation(files("libs/core.jar"))
