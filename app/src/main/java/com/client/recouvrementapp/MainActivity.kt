@@ -135,20 +135,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        onBackInvokedDispatcher.registerOnBackInvokedCallback(
-            OnBackInvokedDispatcher.PRIORITY_DEFAULT
-        ) {
-            val currentTime = System.currentTimeMillis()
-
-            if (currentTime - backPressedTime < 2000) {
-                if (::toast.isInitialized) toast.cancel()
-                finish() // ferme l'activité
-            } else {
-                toast = Toast.makeText(this@MainActivity, "Appuyez encore pour quitter", Toast.LENGTH_SHORT)
-                toast.show()
-                backPressedTime = currentTime
-            }
-        }
+//        onBackInvokedDispatcher.registerOnBackInvokedCallback(
+//            OnBackInvokedDispatcher.PRIORITY_DEFAULT
+//        ) {
+//            val currentTime = System.currentTimeMillis()
+//
+//            if (currentTime - backPressedTime < 2000) {
+//                if (::toast.isInitialized) toast.cancel()
+//                finish() // ferme l'activité
+//            } else {
+//                toast = Toast.makeText(this@MainActivity, "Appuyez encore pour quitter", Toast.LENGTH_SHORT)
+//                toast.show()
+//                backPressedTime = currentTime
+//            }
+//        }
     }
     private fun initPrinterService(vm: PrinterConfigViewModel) {
         handler = @SuppressLint("HandlerLeak")
