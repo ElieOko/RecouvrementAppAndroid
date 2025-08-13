@@ -6,15 +6,16 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TransactionType(
     val id : Int = 0,
-    val name: String = ""
+    val name: String = "",
+    val description : String = ""
 ){
     fun listTransactionType() : List<TransactionType>{
         return listOf(
-            TransactionType(10, "Subscription"),
-            TransactionType(11, "LoanRepay"),
-            TransactionType(12, "Cotisation Ordinaire"),
-            TransactionType(13, "Cotisation Spesm"),
-            TransactionType(14, "Epargne"),
+            TransactionType(10, "Subscription","Subscription"),
+            TransactionType(11, "LoanRepay", "Prêt"),
+            TransactionType(12, "CotisationOrdinaire", "Cotisation Ordinaire"),
+            TransactionType(13, "CotisationSpesm","Cotisation Spesm"),
+            TransactionType(14, "Savings", "Epargne"),
         )
     }
 

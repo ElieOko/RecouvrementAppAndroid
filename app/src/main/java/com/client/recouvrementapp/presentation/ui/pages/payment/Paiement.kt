@@ -70,6 +70,7 @@ import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 import com.client.recouvrementapp.domain.model.room.PeriodModel
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
 import com.client.recouvrementapp.domain.model.room.UserModel
+import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.presentation.components.elements.InputFieldCompose
 import com.client.recouvrementapp.presentation.components.elements.Label
@@ -113,7 +114,7 @@ fun PaiementBody(
     var period: String by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
     var device: String by remember { mutableStateOf("") }
-    var transactionType by remember { mutableStateOf(TransactionType().asDataSelect()[0].name) }
+    var transactionType by remember { mutableStateOf(TransactionType().asDataSelect()[0].description) }
     var paymentMethod: String by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var isActive by remember { mutableStateOf(true) }
@@ -276,7 +277,7 @@ fun PaiementBody(
 
                 Button(
                     onClick = {
-                        if (vm?.configuration?.isConnectNetwork == true){
+                        /*if (vm?.configuration?.isConnectNetwork == true){
                             if (currencyId == 0){
                                 isShow = true
                                 msg = "devise n'est pas renseigné"
@@ -525,9 +526,9 @@ fun PaiementBody(
                             msg = "Vous n'êtes pas connecté veuillez vérifier votre connexion !!!"
                             titleMsg = "Problème de connexion"
                             isShow = true
-                        }
+                        }*/
 
-//                        navC?.navigate(route = ScreenRoute.PaymentPrinter.name)
+                        navC?.navigate(route = ScreenRoute.PaymentPrinter.name)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = isActive,

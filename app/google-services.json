@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "987629961653",
+    "project_id": "recouvrementapp-9eddc",
+    "storage_bucket": "recouvrementapp-9eddc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987629961653:android:63ea792528d759a18a59fc",
+        "android_client_info": {
+          "package_name": "com.client.recouvrementapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD12rtdz2nfauzmc85h0MMSNc0JmiQd2sg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

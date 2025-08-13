@@ -48,7 +48,9 @@ fun PaimentPrinter(
     PaimentPrinterBody(navC, onBackEvent, viewModelGlobal)
 }
 
-@SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
+@SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition",
+    "SuspiciousIndentation"
+)
 @Composable
 fun PaimentPrinterBody(
     navC: NavHostController? = null,
@@ -89,22 +91,31 @@ fun PaimentPrinterBody(
 
                                 val messageToPrint = delimiterTop + message + delimiterBottom
 
-                                //val send = messageToPrint.toByteArray(charset("GBK"))
-
-                                val bt: ByteArray = hexStringToBytes(messageToPrint)
-                                PrintService.pl.write(messageToPrint.toByteArray())
-                                PrintService.pl.printText("\n")
+                                val send = messageToPrint.toByteArray(charset("GBK"))
+                                PrintService.pl.write(send)
+                                PrintService.pl.printText("\n\n\n")
                                 PrintService.pl.write(byteArrayOf(0x1B,0x0C))
-                                Toast.makeText(context,"Hello", Toast.LENGTH_SHORT).show()
-                                //return
+                                PrintService.pl.write(byteArrayOf(0x1D, 0x56, 0x00))
+//                                PrintService.pl.write(byteArrayOf(0x1D))
+//                                PrintService.pl.write( byteArrayOf("V".toByte()))
+//                                PrintService.pl.write(byteArrayOf(48))
+//                                PrintService.pl.write(byteArrayOf(0))
                             }
                             catch (e : UnsupportedEncodingException){
                                 e.printStackTrace();
                                 Log.e("**********",e.message.toString())
                                 Toast.makeText(context,e.message.toString(), Toast.LENGTH_SHORT).show()
                             }
-                            //
-                            //PrintService.pl.write(byteArrayOf(0x1d, 0x0c))
+                            /*
+                            0x1D
+
+                                outputStream.write(0x1D);
+                                outputStream.write("V".getBytes());
+                                outputStream.write(48);
+                                outputStream.write(0);
+
+                             */
+                            PrintService.pl.write(byteArrayOf(0x1d, 0x0c))
                             isActive.value = true
 
                        // }
