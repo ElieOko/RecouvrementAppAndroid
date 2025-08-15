@@ -4,17 +4,16 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.client.recouvrementapp.domain.model.DataSelect
 
 @Entity(
-    tableName = "TMembre",
+    tableName = "TMember",
     indices = [Index(
-        value = ["membre_id"],
+        value = ["member_id"],
         unique = true
     )]
 )
-data class MembreModel(
+data class MemberModel(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "membre_id") val id : Int = 1,
+    @ColumnInfo(name = "member_id") val id : Int = 1,
     val name : String = ""
 )
