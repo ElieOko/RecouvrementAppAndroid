@@ -1,5 +1,10 @@
 package com.client.recouvrementapp.presentation.components.elements
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import com.client.recouvrementapp.R
@@ -70,16 +76,25 @@ fun TopBarCustom(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Preview(showBackground = true)
 fun TopBarSimple(
     username: String? = "elieoko",
     title : String = "Recouvrement",
     onclickLogOut : ()-> Unit = {},
     onBackEvent : ()-> Unit = {},
+    onclickSync : ()-> Unit = {},
     onclick :()-> Unit = {},
     menuItem :List<MenuItem> = emptyList(),
     isMain : Boolean = true
 ){
     var expanded by remember { mutableStateOf(false) }
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
+    val animatedColor by infiniteTransition.animateColor(
+        initialValue = Color(0xF788F18A),
+        targetValue = Color(0xFFFFFFFF),
+        animationSpec = infiniteRepeatable(tween(1000), RepeatMode.Reverse),
+        label = "color"
+    )
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White.copy(0.8F)),
         navigationIcon = {
@@ -95,17 +110,22 @@ fun TopBarSimple(
                 IconButton(
                     onClick = onclick,
                     colors = IconButtonDefaults.iconButtonColors(containerColor = bagdeColor),
-                    modifier = Modifier.size(32.dp).border(width = 10.dp,
-                        color = Color(0xF788F18A),
+                    modifier = Modifier.size(28.dp).border(width = 10.dp,
+                        color = animatedColor,
                         shape = CircleShape
                     )
                 ) {
                     Text(username?.get(0)?.uppercaseChar().toString(), color = Color.White)
                 }
                 Space(x = 18)
+                IconButton(onClick = {onclickSync()}) {
+                    Icon(painterResource(R.drawable.sync), null, modifier = Modifier.size(24.dp))
+                }
+
                 IconButton(onClick = {onclickLogOut()}) {
                     Icon(painterResource(R.drawable.logout), null, modifier = Modifier.size(24.dp))
                 }
+
                 Box {
                     IconButton({
                         expanded = !expanded

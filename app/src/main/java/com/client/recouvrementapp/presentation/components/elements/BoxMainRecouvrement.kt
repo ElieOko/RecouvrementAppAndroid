@@ -51,7 +51,7 @@ fun BoxMainRecouvrement(
 //            Icon(painterResource(R.drawable.bottom), contentDescription = "", modifier = Modifier.size(30.dp), tint = Color.Green.copy(alpha = 0.5f))
             Spacer(Modifier.width(10.dp))
             Column{
-                Text("Recouvrement pour aujourd'hui",color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                Text("Recouvrement pour aujourd'hui",color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Absolute.Right) {
                 Box(modifier = Modifier.border(width = 10.dp, color = Color.LightGray.copy(
