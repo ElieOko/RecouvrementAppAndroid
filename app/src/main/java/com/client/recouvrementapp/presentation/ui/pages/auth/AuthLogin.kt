@@ -28,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +50,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
 import com.client.recouvrementapp.core.AsteriskPasswordVisualTransformation
-import com.client.recouvrementapp.core.dateISOConvert
 import com.client.recouvrementapp.data.local.Constantes.Companion.authConnectRoute
 import com.client.recouvrementapp.data.remote.KtorClientAndroid
 import com.client.recouvrementapp.data.shared.StoreData
@@ -60,7 +58,6 @@ import com.client.recouvrementapp.domain.model.ResponseHttpRequestAuth
 import com.client.recouvrementapp.domain.model.core.user.ProfilUser
 import com.client.recouvrementapp.domain.model.core.user.User
 import com.client.recouvrementapp.domain.model.core.user.UserAuth
-import com.client.recouvrementapp.domain.model.room.RecouvrementModel
 import com.client.recouvrementapp.domain.model.room.UserModel
 import com.client.recouvrementapp.domain.route.ScreenRoute
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
@@ -75,17 +72,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun AuthLogin(
     navC: NavHostController,
-    onBackEvent: () -> Unit = {},
     vm: ApplicationViewModel?
 ) {
-    AuthLoginBody(navC,onBackEvent,vm)
+    AuthLoginBody(navC,vm)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthLoginBody(
     navC: NavHostController? = null,
-    onBackEvent: () -> Unit = {},
     vm: ApplicationViewModel? = null,
 ) {
     val scope = rememberCoroutineScope()
@@ -99,32 +94,6 @@ fun AuthLoginBody(
     var isShow by remember { mutableStateOf(false) }
     val isVisible = remember { mutableStateOf(false) }
     val userList = vm?.room?.user?.listUser?.collectAsState()
-    val listRecouvrementAll = vm?.room?.recouvrement?.listRecouvrementAll?.collectAsState()
-
-//    LaunchedEffect(Unit) {
-//        scope.launch {
-//            val dateTimeModel = dateISOConvert("2025-07-24T10:01:05.5889257Z")
-//            vm?.room?.recouvrement?.insert(
-//                RecouvrementModel(
-//                    id = 5,
-//                    userId =  2,
-//                    paymentMethodId = 2,
-//                    periodId = null,
-//                    currencyId = 1,
-//                    transactionType = "Subscription",
-//                    code = "005",
-//                    amount = 100,
-//                    remark = "",
-//                    datePayment = "",
-//                    createdOn = dateTimeModel.date,
-//                    time = dateTimeModel.time
-//                )
-//            )
-//            vm?.room?.recouvrement?.getAllRecouvrement()
-//            Log.e("size recouvrement ->", "${listRecouvrementAll?.value?.size}")
-//        }
-//    }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -255,7 +224,7 @@ fun AuthLoginBody(
                                         if (username.isNotEmpty() && password.isNotEmpty()){
                                             coroutineScope.launch {
                                                 isActive = false
-                                                delay(3000)
+                                                delay(1000)
                                                 Log.e("connect server->","${UserAuth(username,password)}")
                                                 try {
                                                     val response = KtorClientAndroid().postData(authConnectRoute,
@@ -282,12 +251,12 @@ fun AuthLoginBody(
                                                                 StoreData(context).saveUser(userT)
                                                             }
                                                             scope.launch {
-                                                                vm.room?.user?.getUser(userId = userModel.id)
+                                                                vm.room.user.getUser(userId = userModel.id)
                                                                 if (userList?.value?.isNotEmpty() == true){
-                                                                    vm.room!!.user.update(userModel)
+                                                                    vm.room.user.update(userModel)
                                                                     Log.i("update user->","$userModel")
                                                                 } else{
-                                                                    vm.room?.user?.insert(userModel)
+                                                                    vm.room.user.insert(userModel)
                                                                     Log.i("insert user->","$userModel")
                                                                 }
                                                                 Log.i("size user->","${userList?.value?.size}")
@@ -320,7 +289,6 @@ fun AuthLoginBody(
                                                     isActive    = true
                                                     Log.e("Network expired request ->",e.message.toString())
                                                 }
-
                                             }
                                         }
                                     }

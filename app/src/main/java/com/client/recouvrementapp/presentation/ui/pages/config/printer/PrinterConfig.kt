@@ -2,7 +2,6 @@ package com.client.recouvrementapp.presentation.ui.pages.config.printer
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -25,10 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
-import com.client.recouvrementapp.domain.viewmodel.config.PrinterConfigViewModel
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import com.qs.helper.printer.Device
@@ -37,39 +34,25 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun PrinterConfig(
-    navC: NavHostController,
     onBackEvent: () -> Unit,
     vm: ApplicationViewModel? = viewModel()
 ) {
-    PrinterConfigBody(navC,onBackEvent,vm)
+    PrinterConfigBody(onBackEvent,vm)
 }
 
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
 @Composable
 fun PrinterConfigBody(
-    navC: NavHostController? = null,
     onBackEvent: () -> Unit = {},
     vm: ApplicationViewModel? = viewModel()
 ) {
     val context = LocalContext.current
     val scopeCoroutine = rememberCoroutineScope()
-    var deviceList: MutableList<Device?> = ArrayList<Device?>()
-   // var deviceList = mutableListOf<Device?>()
-    deviceList = vm?.configuration?.printer?.deviceList as MutableList<Device?>
-    var mNewDevicesArrayAdapter: ArrayAdapter<String?>? = null
+    val deviceList: MutableList<Device?> = vm?.configuration?.printer?.deviceList as MutableList<Device?>
     var bluetoothStatus by mutableStateOf("")
-//    var btService : BtService? = null
-//    val policy = ThreadPolicy.Builder().permitAll().build()
-//    StrictMode.setThreadPolicy(policy)
-  //  btService = BtService()
-    //LaunchedEffect(){
-
-    //}
-    if (deviceList != null){
-        deviceList.clear();
-    }
+    deviceList.clear()
     if (!PrintService.pl.IsOpen()){
-        PrintService.pl.open(context);
+        PrintService.pl.open(context)
     }
 
 
@@ -93,11 +76,7 @@ fun PrinterConfigBody(
                    }
                 }
                 scopeCoroutine.launch {
-//                    deviceList = vm.scan()!!
-                    Toast.makeText(context,"${deviceList?.size}", Toast.LENGTH_SHORT).show()
-//                    if(deviceList?.isNotEmpty() == true){
-//                        Toast.makeText(context,"${deviceList?.get(0)?.deviceName}", Toast.LENGTH_SHORT).show()
-//                    }
+                    Toast.makeText(context,"${deviceList.size}", Toast.LENGTH_SHORT).show()
                 }
             },colors = ButtonDefaults.buttonColors(
                 containerColor =  Color(0xFF15D77D),

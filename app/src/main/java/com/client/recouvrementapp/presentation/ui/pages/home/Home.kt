@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,16 +54,8 @@ import com.client.recouvrementapp.presentation.components.elements.BoxMainRecouv
 import com.client.recouvrementapp.presentation.components.elements.ImageIconButton
 import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
-//import com.google.accompanist.permissions.ExperimentalPermissionsApi
-//import com.google.accompanist.permissions.PermissionStatus
-//import com.google.accompanist.permissions.rememberMultiplePermissionsState
-//import com.google.accompanist.permissions.rememberPermissionState
-//import com.google.accompanist.permissions.shouldShowRationale
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import io.ktor.client.call.body
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -87,53 +80,14 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
     val isShow = remember { mutableStateOf(false) }
     var titleMsg = ""
     var msg = ""
-    var requestCount = remember { mutableStateOf(0) }
+    val requestCount = remember { mutableIntStateOf(0) }
     val user = remember { mutableStateListOf<ProfilUser?>() }
-    val channelUser = Channel<ProfilUser>()
     val listRecouvrementAmountOfDay = vm?.room?.recouvrement?.listRecouvrementToday?.collectAsState()
     val listRecouvrementAmountOfDayCDF = vm?.room?.recouvrement?.listRecouvrementTodayCDF?.collectAsState()
     var textPositive = "Valider"
     var textNegative = "Annuler"
     val dateCurrent = convertMillisToDate(System.currentTimeMillis())
-    val listOfRecouvrementDay = listOf<RecouvrementAmountOfDay>(
-        RecouvrementAmountOfDay(
-            currency = Currency(1,"Dollar", "USD","$"),
-            0.0
-        ),
-        RecouvrementAmountOfDay(
-        currency = Currency(1,"Franc Congolais", "CDF","FC"),
-            0.0
-        ),
-    )
-
-    val onLogOutEvent :() -> Unit = {
-        isShow.value = false
-        navC?.navigate(route = ScreenRoute.Login.name){
-            popUpTo(navC.graph.id){
-                inclusive = true
-            }
-        }
-    }
-    val itemMenu = listOf<MenuItem>(
-        MenuItem(1,"Config Printer", eventClick = {
-            navC?.navigate(route = ScreenRoute.PrinterConfig.name)
-        })
-    )
-    var onclick : () -> Unit = {}
-    LaunchedEffect(Unit){
-        scope.launch {
-            StoreData(context).getUser.collect { u ->
-                user.add(u)
-                requestCount.value = 1
-                vm?.room?.recouvrement?.getAllRecouvrementToDay(dateCurrent,1,user[0]!!.profile.id)
-                vm?.room?.recouvrement?.getAllRecouvrementToDayCDF(dateCurrent,2,user[0]!!.profile.id)
-                Log.e("today ->","${listRecouvrementAmountOfDay?.value}")
-            }
-        }
-
-
-
-
+    val onClickSync : ()-> Unit = {
         if (vm?.configuration?.isConnectNetwork == true){
             scope.launch {
                 val responseCurrency = requestServer(
@@ -158,7 +112,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                                             code = "USD",
                                             symbole = "$"
                                         )
-                                        vm.room?.currency?.insert(currencyModel)
+                                        vm.room.currency.insert(currencyModel)
                                     }
                                     2->{
                                         val currencyModel = CurrencyModel(
@@ -167,14 +121,14 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                                             code = "CDF",
                                             symbole = "Fc"
                                         )
-                                        vm.room?.currency?.insert(currencyModel)
+                                        vm.room.currency.insert(currencyModel)
                                     }
                                     else ->{
                                         val currencyModel = CurrencyModel(
                                             id = currency.id,
                                             name = currency.name
                                         )
-                                        vm.room?.currency?.insert(currencyModel)
+                                        vm.room.currency.insert(currencyModel)
                                     }
                                 }
 
@@ -188,7 +142,6 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                 }
             }
             scope.launch {
-
                 val responseTypePaymentMethod = requestServer(
                     context = context,
                     route = paymentMethodRoute
@@ -204,7 +157,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                                     id      = typePaymentMethod.id,
                                     name    = typePaymentMethod.name
                                 )
-                                vm.room?.paymentMethod?.insert(paymentModel)
+                                vm.room.paymentMethod.insert(paymentModel)
                             }
                         }
                     }
@@ -223,14 +176,16 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                     in 200..299 ->{
                         val data : ArrayList<KeyValue> = responsePeriod.body()
                         Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
-
+                        msg = "Mises à jours effectuer avec succès"
+                        titleMsg = "Information"
+                        isShow.value = true
                         scope.launch {
                             data.forEach {period->
                                 val periodModel = PeriodModel(
                                     id      = period.id,
                                     name    = period.name
                                 )
-                                vm.room?.period?.insert(periodModel)
+                                vm.room.period.insert(periodModel)
                             }
                             Log.e("save periode>>>","$$$$$")
                         }
@@ -242,10 +197,38 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
             }
         }
     }
+    val onLogOutEvent :() -> Unit = {
+        isShow.value = false
+        navC?.navigate(route = ScreenRoute.Login.name){
+            popUpTo(navC.graph.id){
+                inclusive = true
+            }
+        }
+    }
+    val itemMenu = listOf(
+        MenuItem(1,"Config Printer", eventClick = {
+            navC?.navigate(route = ScreenRoute.PrinterConfig.name)
+        })
+    )
+    var onclick : () -> Unit = {}
+    LaunchedEffect(Unit){
+        scope.launch {
+            StoreData(context).getUser.collect { u ->
+                user.add(u)
+                requestCount.intValue = 1
+                vm?.room?.recouvrement?.getAllRecouvrementToDay(dateCurrent,1,user[0]!!.profile.id)
+                vm?.room?.recouvrement?.getAllRecouvrementToDayCDF(dateCurrent,2,user[0]!!.profile.id)
+                Log.e("today ->","${listRecouvrementAmountOfDay?.value}")
+            }
+        }
+    }
     Scaffold(
         topBar = {
             if (user.isNotEmpty()){
                 TopBarSimple(
+                    onclick ={
+                        navC?.navigate(route = ScreenRoute.Profil.name)
+                    },
                     onclickLogOut = {
                         textPositive = "Oui"
                         textNegative = "Non"
@@ -254,36 +237,30 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                         isShow.value = true
                         onclick = onLogOutEvent
                     },
+                    onclickSync = onClickSync,
                     menuItem = itemMenu,
                     username = user[0]?.profile?.username
                 )
             }
         }
     ) {
-
-        scope.launch {
-            Log.e("REQUEST->>>>>>>>>>>>>>>>","Elie Oko")
-        }
-//        if (user.isNotEmpty() && requestCount.value == 1){
-//
-//        }
-
         Column(Modifier.padding(it)) {
-            Column(Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Space(y = 150)
-                ImageIconButton(onclick = {
-                    navC?.navigate(route = ScreenRoute.Payment.name)
-                })
-                Space(y = 10)
-                Text("Appuyez pour recouvrir sur +", color = Color.Black, fontSize = 18.sp)
-            }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier.fillMaxSize()
             ) {
+                Column(Modifier.padding(5.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+
+                    ImageIconButton(onclick = {
+                        navC?.navigate(route = ScreenRoute.Payment.name)
+                    })
+                    Space(y = 10)
+                    Text("Appuyez pour recouvrir sur +", color = Color.Black, fontSize = 18.sp)
+                }
+                Space(y = 150)
                 ConstraintLayout {
-                    val (card, buttonLink) = createRefs()
+                   // val (card) = createRefs()
                     Card(
                         modifier = Modifier
                             .fillMaxWidth().height((size / 2).dp),
@@ -292,21 +269,22 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                             containerColor = Color(0xFF25262C)
                         )) {
                     }
-                    BoxMainRecouvrement(
-                        modifier = Modifier
-                            .absoluteOffset(y = (-45).dp, x = 41.dp),
-                        onclick = {
-                            navC?.navigate(route = ScreenRoute.History.name)
-                        },
-                        width = sizeWidth + 100,
-                        listRecouvrementAmountOfDay = listOf(RecouvrementAmountOfDay(currency =  Currency(1,"Dollar", "USD","$"), amount = listRecouvrementAmountOfDay?.value?.toDouble()
-                            ?: 0.0),
+                    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                        BoxMainRecouvrement(
+                            modifier = Modifier
+                                .absoluteOffset(y = (-45).dp),
+                            onclick = {
+                                navC?.navigate(route = ScreenRoute.History.name)
+                            },
+                            width = sizeWidth + 100,
+                            listRecouvrementAmountOfDay = listOf(RecouvrementAmountOfDay(currency =  Currency(1,"Dollar", "USD","$"), amount = listRecouvrementAmountOfDay?.value?.toDouble()
+                                ?: 0.0),
                                 RecouvrementAmountOfDay(currency =  Currency(2,"Franc Congolais", "CDF","Fc"), amount = listRecouvrementAmountOfDayCDF?.value?.toDouble()
-                            ?: 0.0))
-                    )
+                                    ?: 0.0))
+                        )
+                    }
                 }
             }
-
         }
         if(isShow.value){
             MAlertDialog(

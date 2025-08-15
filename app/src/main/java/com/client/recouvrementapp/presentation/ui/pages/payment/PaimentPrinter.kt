@@ -15,6 +15,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,21 +33,22 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
-import com.client.recouvrementapp.core.hexStringToBytes
+import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.domain.viewmodel.PrinterViewModel
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import com.qs.helper.printer.PrintService
+import kotlinx.coroutines.launch
 import java.io.UnsupportedEncodingException
 
 @Composable
 fun PaimentPrinter(
-    navC: NavHostController,
     onBackEvent: () -> Unit,
-    viewModelGlobal: ApplicationViewModel?
+    viewModelGlobal: ApplicationViewModel?,
+    recouvementId: Int? = 0
 ) {
-    PaimentPrinterBody(navC, onBackEvent, viewModelGlobal)
+    PaimentPrinterBody(onBackEvent, viewModelGlobal,recouvementId)
 }
 
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition",
@@ -53,17 +56,29 @@ fun PaimentPrinter(
 )
 @Composable
 fun PaimentPrinterBody(
-    navC: NavHostController? = null,
     onBackEvent: () -> Unit = {},
-    viewModelGlobal: ApplicationViewModel? = null
+    vm: ApplicationViewModel? = null,
+    recouvementId: Int? = null
 ) {
     val context = LocalContext.current
-    var bluetooth by mutableStateOf("")
     val scopeCoroutine = rememberCoroutineScope()
     val viewModel: PrinterViewModel = viewModel()
-    //val print = PrintService.pl
-    var isActive = remember { mutableStateOf(true) }
-    PrintService.pl.open(context)
+    val detail = vm?.room?.recouvrement?.recouvrementDetail?.collectAsState()?.value
+    val isActive = remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit){
+        scopeCoroutine.launch {
+            vm?.room?.recouvrement?.getDetailRecouvrement(recouvementId!!)
+        }
+        scopeCoroutine.launch {
+            StoreData(context).getBluetoothPrinter.collect { cmd ->
+                if(cmd != null){
+                    PrintService.pl.connect(cmd)
+                }
+            }
+        }
+        PrintService.pl.open(context)
+    }
     Scaffold (
         topBar = {
             TopBarSimple(
@@ -80,8 +95,6 @@ fun PaimentPrinterBody(
 
             Button(
                     onClick = {
-                       // viewModel.onPrintClicked(context,bluetooth)
-                        //scopeCoroutine.launch {
                         isActive.value = false
                         PrintService.LanguageStr = "Japanese"
                             try {
@@ -136,7 +149,6 @@ fun PaimentPrinterBody(
         }
     }
 }
-
 
 @Composable
 @Preview(showBackground = true)
