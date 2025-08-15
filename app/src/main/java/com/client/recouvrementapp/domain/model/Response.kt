@@ -18,7 +18,8 @@ data class ResponseHttpRequest(
 @Serializable
 data class ResponseHttpRequestPayment(
     val id : Int,
-    val createdOn : String
+    val createdOn : String,
+    val member : KeyValue
 )
 
 @Serializable

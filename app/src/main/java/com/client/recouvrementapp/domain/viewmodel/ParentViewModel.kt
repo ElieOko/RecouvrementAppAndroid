@@ -28,10 +28,12 @@ class InstanceRoomViewModel(
 
 class ConfigurationViewModel(
     printerViewModel: PrinterConfigViewModel,
+    ktorClient : KtorViewModel,
     isConnectNetworkState: Boolean
 ) : ViewModel(){
     var printer = printerViewModel
     var isConnectNetwork = isConnectNetworkState
+    var ktor = ktorClient
 }
 
 class ApplicationViewModel(
