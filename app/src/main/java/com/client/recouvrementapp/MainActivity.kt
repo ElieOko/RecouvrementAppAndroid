@@ -29,6 +29,8 @@ import com.client.recouvrementapp.domain.viewmodel.KtorViewModel
 import com.client.recouvrementapp.domain.viewmodel.config.PrinterConfigViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModelFactory
+import com.client.recouvrementapp.domain.viewmodel.room.MemberViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.MemberViewModelFactory
 import com.client.recouvrementapp.domain.viewmodel.room.PaymentMethodViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.PaymentMethodViewModelFactory
 import com.client.recouvrementapp.domain.viewmodel.room.PeriodViewModel
@@ -54,6 +56,10 @@ class MainActivity : ComponentActivity() {
 
     private val periodViewModel: PeriodViewModel by viewModels {
         PeriodViewModelFactory((application as RecouvrementApplication).periodRepository)
+    }
+
+    private val memberViewModel: MemberViewModel by viewModels {
+        MemberViewModelFactory((application as RecouvrementApplication).memberRepository)
     }
 
     private val currencyViewModel: CurrencyViewModel by viewModels {
@@ -109,7 +115,8 @@ class MainActivity : ComponentActivity() {
                             currencyViewModel = currencyViewModel,
                             userViewModel = userViewModel,
                             recouvrementViewModel = recouvrementViewModel,
-                            paymentMethodViewModel = paymentMethodViewModel
+                            paymentMethodViewModel = paymentMethodViewModel,
+                            memberViewModel = memberViewModel
                         ),
                         configurationVm = ConfigurationViewModel(
                             printerViewModel = printerViewModel,
@@ -123,6 +130,7 @@ class MainActivity : ComponentActivity() {
                 applicationViewModel.room.currency = currencyViewModel
                 applicationViewModel.room.period = periodViewModel
                 applicationViewModel.room.user = userViewModel
+                applicationViewModel.room.member = memberViewModel
                 applicationViewModel.room.recouvrement = recouvrementViewModel
                 applicationViewModel.room.paymentMethod = paymentMethodViewModel
                 applicationViewModel.configuration.printer = printerViewModel
