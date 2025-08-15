@@ -5,9 +5,7 @@ import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.client.recouvrementapp.core.dateISOConvert
 import com.client.recouvrementapp.domain.interfaces.room.ICurrencyDao
 import com.client.recouvrementapp.domain.interfaces.room.IMemberDao
 import com.client.recouvrementapp.domain.interfaces.room.IPaymentMethodDao
@@ -15,8 +13,6 @@ import com.client.recouvrementapp.domain.interfaces.room.IPeriodDao
 import com.client.recouvrementapp.domain.interfaces.room.IRecouvrementDao
 import com.client.recouvrementapp.domain.interfaces.room.ITransactionTypeDao
 import com.client.recouvrementapp.domain.interfaces.room.IUserDao
-import com.client.recouvrementapp.domain.model.core.Currency
-import com.client.recouvrementapp.domain.model.core.PaymentMethod
 import com.client.recouvrementapp.domain.model.room.CurrencyModel
 import com.client.recouvrementapp.domain.model.room.MemberModel
 import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
@@ -71,66 +67,11 @@ abstract class RecouvrementRoomDatabase : RoomDatabase() {
     }
     private class RecouvrementDatabaseCallback(
         private val scope: CoroutineScope
-    ) : RoomDatabase.Callback() {
+    ) : Callback() {
         override fun onCreate(db: SupportSQLiteDatabase) {
             super.onCreate(db)
             INSTANCE?.let { database->
-                scope.launch {
-                     //populateDatabase(database.userDao())
-                    val recouvrementDao = database.recouvrementDao()
-                    val currencyDao = database.currencyDao()
-                    val userDao = database.userDao()
-                    val methodDao = database.paymentMethodDao()
-
-                    // Exemple de données par défaut
-//                    val dateTimeModel = dateISOConvert("2025-07-24T10:01:05.5889257Z")
-//                    val defaultRec = listOf(
-//                        RecouvrementModel(
-//                            id = 50,
-//                            userId =  2,
-//                            paymentMethodId = 2,
-//                            periodId = 1,
-//                            currencyId = 1,
-//                            transactionType = "Subscription",
-//                            code = "005",
-//                            amount = 100,
-//                            remark = "",
-//                            datePayment = "",
-//                            createdOn = dateTimeModel.date,
-//                            time = dateTimeModel.time
-//                        ),
-//                        RecouvrementModel(
-//                            id = 51,
-//                            userId =  2,
-//                            paymentMethodId = 2,
-//                            periodId = null,
-//                            currencyId = 1,
-//                            transactionType = "Subscription",
-//                            code = "005",
-//                            amount = 500,
-//                            remark = "",
-//                            datePayment = "",
-//                            createdOn = dateTimeModel.date,
-//                            time = dateTimeModel.time
-//                        ),
-//                    )
-//                    userDao.insertAll(
-//                        UserModel(id = 2,"elieoko","test")
-//                    )
-//                    currencyDao.insertAll(CurrencyModel(1,"Dollar", "USD","$"),
-//                        CurrencyModel(2,"Franc Congolais", "CDF","Fc")
-//                    )
-//                    methodDao.insertAll(
-//                        PaymentMethodModel(id = 1, name = "Paiements par carte bancaire"),
-//                        PaymentMethodModel(id = 2, name = "Paiement en espèces"),
-//                        PaymentMethodModel(id = 3, name = "Paiements mobiles")
-//                    )
-//                    recouvrementDao.insertAll(defaultRec[0])
-//                    recouvrementDao.insertAll(defaultRec[1])
-//                    recouvrementDao.getAll().collect {
-//                        Log.d("with database build rec","$it")
-//                    }
-                }
+                scope.launch {}
             }
         }
 
