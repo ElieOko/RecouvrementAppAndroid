@@ -2,46 +2,10 @@ package com.client.recouvrementapp.domain.model.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "TRecouvrement",
-//    foreignKeys = [
-//        ForeignKey(
-//            entity = UserModel::class,
-//            parentColumns = arrayOf("user_id"),
-//            childColumns = arrayOf("user_id"),
-//            onUpdate = ForeignKey.CASCADE,
-//            onDelete = ForeignKey.CASCADE
-//        ),
-//        ForeignKey(
-//            entity = PaymentMethodModel::class,
-//            parentColumns = arrayOf("payment_method_id"),
-//            childColumns = arrayOf("payment_method_id"),
-//            onUpdate = ForeignKey.CASCADE,
-//            onDelete = ForeignKey.CASCADE
-//        ),
-//        ForeignKey(
-//            entity = CurrencyModel::class,
-//            parentColumns = arrayOf("currency_id"),
-//            childColumns = arrayOf("currency_id"),
-//            onUpdate = ForeignKey.CASCADE,
-//            onDelete = ForeignKey.CASCADE
-//        ),
-//        ForeignKey(
-//            entity = PeriodModel::class,
-//            parentColumns = arrayOf("period_id"),
-//            childColumns = arrayOf("period_id"),
-//            onUpdate = ForeignKey.CASCADE,
-//            onDelete = ForeignKey.SET_NULL
-//        )
-//    ],
-//    indices = [Index(
-//        value = ["recouvrement_id"],
-//        unique = true
-//    )]
 )
 data class RecouvrementModel(
     @PrimaryKey(autoGenerate = false)
