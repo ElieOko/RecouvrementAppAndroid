@@ -32,4 +32,10 @@ data class RecouvrementWithRelations(
         entityColumn = "period_id"
     )
     val period: PeriodModel?=null,
+
+    @Relation(
+        parentColumn = "member_id",
+        entityColumn = "member_id"
+    )
+    val member: MemberModel?=null,
 )
