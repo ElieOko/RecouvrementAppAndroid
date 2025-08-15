@@ -2,13 +2,10 @@ package com.client.recouvrementapp
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.os.Build.VERSION
-import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.widget.Toast
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.core.os.BuildCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -29,6 +25,7 @@ import com.client.recouvrementapp.domain.route.Navigation
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.domain.viewmodel.ConfigurationViewModel
 import com.client.recouvrementapp.domain.viewmodel.InstanceRoomViewModel
+import com.client.recouvrementapp.domain.viewmodel.KtorViewModel
 import com.client.recouvrementapp.domain.viewmodel.config.PrinterConfigViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModelFactory
@@ -94,6 +91,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             navHostController = rememberNavController()
             RecouvrementAppTheme {
+                val ktorClientViewModel =viewModel<KtorViewModel>()
                 val printerViewModel = viewModel<PrinterConfigViewModel>()
                 val connectivityViewModel = viewModel<ConnectivityViewModel> {
                     ConnectivityViewModel(
@@ -115,7 +113,8 @@ class MainActivity : ComponentActivity() {
                         ),
                         configurationVm = ConfigurationViewModel(
                             printerViewModel = printerViewModel,
-                            isConnectNetworkState = isConnected
+                            isConnectNetworkState = isConnected,
+                            ktorClient = ktorClientViewModel
                         )
                     )
                 }
@@ -128,6 +127,7 @@ class MainActivity : ComponentActivity() {
                 applicationViewModel.room.paymentMethod = paymentMethodViewModel
                 applicationViewModel.configuration.printer = printerViewModel
                 applicationViewModel.configuration.isConnectNetwork = isConnected
+                applicationViewModel.configuration.ktor = ktorClientViewModel
                 initPrinterService(printerViewModel)
                 PrintService.pl = BtService(this, mhandler, handler)
                 Scaffold(modifier = Modifier.fillMaxSize()) {
