@@ -69,6 +69,7 @@ import com.client.recouvrementapp.domain.model.ResponseHttpRequestPayment
 import com.client.recouvrementapp.domain.model.core.Recouvrement
 import com.client.recouvrementapp.domain.model.core.TransactionType
 import com.client.recouvrementapp.domain.model.room.CurrencyModel
+import com.client.recouvrementapp.domain.model.room.MemberModel
 import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 import com.client.recouvrementapp.domain.model.room.PeriodModel
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
@@ -368,6 +369,11 @@ fun PaiementBody(
                                                                     val dateTimeModel =
                                                                         dateISOConvert(data.createdOn)
                                                                     scope.launch {
+                                                                        vm.room.member.insert(
+                                                                            MemberModel(data.member.id,data.member.name)
+                                                                        )
+                                                                    }
+                                                                    scope.launch {
                                                                         vm.room.recouvrement.insert(
                                                                             RecouvrementModel(
                                                                                 id = data.id,
@@ -375,6 +381,7 @@ fun PaiementBody(
                                                                                 paymentMethodId = recouvrement.paymentMethodId,
                                                                                 periodId = periodId,
                                                                                 currencyId = recouvrement.currencyId,
+                                                                                memberId = data.member.id,
                                                                                 transactionType = transactionType,
                                                                                 code = code,
                                                                                 amount = amount.toInt(),
@@ -472,6 +479,11 @@ fun PaiementBody(
                                                                             response.body<ResponseHttpRequestPayment>()
                                                                         val dateTimeModel = dateISOConvert(data.createdOn)
                                                                         scope.launch {
+                                                                            vm.room.member.insert(
+                                                                                MemberModel(data.member.id,data.member.name)
+                                                                            )
+                                                                        }
+                                                                        scope.launch {
                                                                             vm.room.recouvrement.insert(
                                                                                 RecouvrementModel(
                                                                                     id = data.id,
@@ -479,6 +491,7 @@ fun PaiementBody(
                                                                                     paymentMethodId = recouvrement.paymentMethodId,
                                                                                     periodId = null,
                                                                                     currencyId = recouvrement.currencyId,
+                                                                                    memberId = data.member.id,
                                                                                     transactionType = transactionType,
                                                                                     code = code,
                                                                                     amount = amount.toInt(),
@@ -576,6 +589,11 @@ fun PaiementBody(
                                                                 val data = response.body<ResponseHttpRequestPayment>()
                                                                 val dateTimeModel = dateISOConvert(data.createdOn)
                                                                 scope.launch {
+                                                                    vm.room.member.insert(
+                                                                        MemberModel(data.member.id,data.member.name)
+                                                                    )
+                                                                }
+                                                                scope.launch {
                                                                     vm.room.recouvrement.insert(
                                                                         RecouvrementModel(
                                                                             id = data.id,
@@ -583,6 +601,7 @@ fun PaiementBody(
                                                                             paymentMethodId = recouvrement.paymentMethodId,
                                                                             periodId = null,
                                                                             currencyId = recouvrement.currencyId,
+                                                                            memberId = data.member.id,
                                                                             transactionType = transactionType,
                                                                             code = code,
                                                                             amount = amount.toInt(),
