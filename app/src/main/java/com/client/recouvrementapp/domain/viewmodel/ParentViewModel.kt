@@ -3,6 +3,7 @@ package com.client.recouvrementapp.domain.viewmodel
 import androidx.lifecycle.ViewModel
 import com.client.recouvrementapp.domain.viewmodel.config.PrinterConfigViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.CurrencyViewModel
+import com.client.recouvrementapp.domain.viewmodel.room.MemberViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.PaymentMethodViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.PeriodViewModel
 import com.client.recouvrementapp.domain.viewmodel.room.RecouvrementViewModel
@@ -16,7 +17,8 @@ class InstanceRoomViewModel(
      currencyViewModel           : CurrencyViewModel,
      userViewModel               : UserViewModel,
      recouvrementViewModel       : RecouvrementViewModel,
-     paymentMethodViewModel      : PaymentMethodViewModel
+     paymentMethodViewModel      : PaymentMethodViewModel,
+     memberViewModel             : MemberViewModel
 ) : ViewModel(){
     var period          = periodViewModel
     var transactionType = transactionTypeViewModel
@@ -24,6 +26,7 @@ class InstanceRoomViewModel(
     var user            = userViewModel
     var recouvrement    = recouvrementViewModel
     var paymentMethod   = paymentMethodViewModel
+    var member          = memberViewModel
 }
 
 class ConfigurationViewModel(
