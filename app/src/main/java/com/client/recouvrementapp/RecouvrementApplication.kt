@@ -8,6 +8,7 @@ import com.client.recouvrementapp.domain.repository.room.PeriodRepository
 import com.client.recouvrementapp.domain.repository.room.RecouvrementRepository
 import com.client.recouvrementapp.domain.repository.room.TransactionTypeRepository
 import com.client.recouvrementapp.domain.repository.room.UserRepository
+import com.client.recouvrementapp.domain.repository.room.MemberRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
@@ -20,6 +21,7 @@ class RecouvrementApplication : Application() {
     val currencyRepository by lazy { CurrencyRepository(database.currencyDao()) }
     val transactionTypeRepository by lazy { TransactionTypeRepository(database.transactionTypeDao()) }
     val periodRepository by lazy { PeriodRepository(database.periodDao()) }
+    val memberRepository by lazy { MemberRepository(database.memberDao()) }
 }
 
 //    override fun onTrimMemory(level: Int) {
