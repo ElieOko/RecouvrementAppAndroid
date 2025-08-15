@@ -9,6 +9,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.client.recouvrementapp.core.dateISOConvert
 import com.client.recouvrementapp.domain.interfaces.room.ICurrencyDao
+import com.client.recouvrementapp.domain.interfaces.room.IMemberDao
 import com.client.recouvrementapp.domain.interfaces.room.IPaymentMethodDao
 import com.client.recouvrementapp.domain.interfaces.room.IPeriodDao
 import com.client.recouvrementapp.domain.interfaces.room.IRecouvrementDao
@@ -17,6 +18,7 @@ import com.client.recouvrementapp.domain.interfaces.room.IUserDao
 import com.client.recouvrementapp.domain.model.core.Currency
 import com.client.recouvrementapp.domain.model.core.PaymentMethod
 import com.client.recouvrementapp.domain.model.room.CurrencyModel
+import com.client.recouvrementapp.domain.model.room.MemberModel
 import com.client.recouvrementapp.domain.model.room.PaymentMethodModel
 import com.client.recouvrementapp.domain.model.room.PeriodModel
 import com.client.recouvrementapp.domain.model.room.RecouvrementModel
@@ -27,7 +29,7 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 @Database(
-    entities = [CurrencyModel::class, PaymentMethodModel::class, PeriodModel::class, RecouvrementModel::class, TransactionTypeModel::class, UserModel::class], version = 10, exportSchema = false)
+    entities = [CurrencyModel::class, PaymentMethodModel::class, PeriodModel::class, RecouvrementModel::class, TransactionTypeModel::class, UserModel::class, MemberModel::class], version = 11, exportSchema = false)
 abstract class RecouvrementRoomDatabase : RoomDatabase() {
     abstract fun currencyDao(): ICurrencyDao
     abstract fun recouvrementDao(): IRecouvrementDao
@@ -35,6 +37,7 @@ abstract class RecouvrementRoomDatabase : RoomDatabase() {
     abstract fun paymentMethodDao(): IPaymentMethodDao
     abstract fun userDao(): IUserDao
     abstract fun periodDao(): IPeriodDao
+    abstract fun memberDao(): IMemberDao
     companion object{
         @Volatile
         private var INSTANCE: RecouvrementRoomDatabase? = null
