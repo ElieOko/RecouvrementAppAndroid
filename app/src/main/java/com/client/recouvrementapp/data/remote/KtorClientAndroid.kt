@@ -33,6 +33,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 
@@ -87,7 +88,7 @@ class HttpClientAndroidBuild(var tokenAccess: String = ""){
                         prettyPrint = true
                         isLenient = true
                         useAlternativeNames = true
-                        ignoreUnknownKeys = false
+                        ignoreUnknownKeys = true
                         encodeDefaults = true
                     }
                 )
@@ -161,6 +162,7 @@ data class TokenModel(
 )
 suspend fun requestServer(context : Context, data : Any = {}, route : String, method : String = "GET"): HttpResponse {
     val channel = Channel<TokenModel>()
+    //withContext()
     CoroutineScope(Dispatchers.IO).launch {
         StoreData(context).getUser.collect {
             if (it.access_token.isNotEmpty()){
@@ -178,7 +180,34 @@ suspend fun requestServer(context : Context, data : Any = {}, route : String, me
         "get"  -> KtorClientAndroid().getData(route, tokenModel.token, typeToken = tokenModel.tokenType)
         "post" -> KtorClientAndroid().postData(route = route, data = data, token = tokenModel.token, typeToken = tokenModel.tokenType)
         else -> {
+            Log.w("method server ->","toza awa" )
         }
     } as HttpResponse
 }
 
+ class NetworkRepository(){
+     suspend fun requestServer(context : Context, data : Any = {}, route : String, method : String = "GET"): HttpResponse {
+         val channel = Channel<TokenModel>()
+         //withContext()
+         //CoroutineScope(Dispatchers.IO).launch {
+             StoreData(context).getUser.collect {
+                 if (it.access_token.isNotEmpty()){
+                     channel.send(TokenModel(it.access_token,it.token_type))
+                     Log.i("request server ->","Elie Oko")
+                     Log.i("request server ->","$")
+                 }
+             }
+         //}
+         val tokenModel = channel.receive()
+         //token = channel.receive()
+         Log.i("token server ->",tokenModel.token)
+         Log.w("method server ->", method.lowercase())
+         return when(method.lowercase()){
+             "get"  -> KtorClientAndroid().getData(route, tokenModel.token, typeToken = tokenModel.tokenType)
+             "post" -> KtorClientAndroid().postData(route = route, data = data, token = tokenModel.token, typeToken = tokenModel.tokenType)
+             else -> {
+                 Log.i("request server other method->","erreur")
+             }
+         } as HttpResponse
+     }
+ }
