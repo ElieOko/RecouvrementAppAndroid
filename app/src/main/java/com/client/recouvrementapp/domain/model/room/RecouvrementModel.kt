@@ -17,6 +17,8 @@ data class RecouvrementModel(
     val paymentMethodId : Int,
     @ColumnInfo(name = "period_id")
     val periodId : Int?,
+    @ColumnInfo(name = "member_id")
+    val memberId : Int?,
     @ColumnInfo(name = "currency_id")
     val currencyId : Int,
     @ColumnInfo(name = "transaction_type")
