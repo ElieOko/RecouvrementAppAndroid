@@ -7,5 +7,6 @@ enum class ScreenRoute {
     Detail,
     Payment,
     PaymentPrinter,
-    PrinterConfig
+    PrinterConfig,
+    Profil
 }

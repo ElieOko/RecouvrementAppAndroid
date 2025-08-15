@@ -15,6 +15,7 @@ import com.client.recouvrementapp.presentation.ui.pages.payment.Paiement
 import com.client.recouvrementapp.presentation.ui.pages.payment.PaimentPrinter
 import com.client.recouvrementapp.presentation.ui.pages.recouvrement.DetailRecouvrement
 import com.client.recouvrementapp.presentation.ui.pages.recouvrement.HistoryRecouvrement
+import com.client.recouvrementapp.presentation.ui.pages.user.Profil
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -24,7 +25,7 @@ fun Navigation(
 ){
     NavHost(navController = navC, startDestination = ScreenRoute.Login.name, route = "root") {
         composable(ScreenRoute.Login.name) {
-            AuthLogin(navC,onBackEvent={},viewModelGlobal)
+            AuthLogin(navC,viewModelGlobal)
         }
         composable(ScreenRoute.Home.name) {
             Home(navC,viewModelGlobal)
@@ -40,10 +41,15 @@ fun Navigation(
             Paiement(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
         composable(ScreenRoute.PrinterConfig.name,) {
-            PrinterConfig(navC, onBackEvent ={navC.popBackStack()}, viewModelGlobal)
+            PrinterConfig(onBackEvent ={navC.popBackStack()}, viewModelGlobal)
         }
-        composable(ScreenRoute.PaymentPrinter.name) {
-            PaimentPrinter(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
+        composable(ScreenRoute.PaymentPrinter.name + "/{id}") {navBackStack ->
+            val recouvementId = navBackStack.arguments?.getString("id")?.toInt()
+            PaimentPrinter(onBackEvent={navC.popBackStack()},viewModelGlobal,recouvementId)
+        }
+        composable(ScreenRoute.Profil.name) {navBackStack ->
+//            val userId = navBackStack.arguments?.getString("id")?.toInt()
+            Profil(navC,onBackEvent={navC.popBackStack()},viewModelGlobal)
         }
     }
 }
