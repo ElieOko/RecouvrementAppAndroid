@@ -79,7 +79,7 @@ fun TopBarCustom(
 @Preview(showBackground = true)
 fun TopBarSimple(
     username: String? = "elieoko",
-    title : String = "Recouvrement",
+    title : String = "FJS",
     onclickLogOut : ()-> Unit = {},
     onBackEvent : ()-> Unit = {},
     onclickSync : ()-> Unit = {},
@@ -107,6 +107,7 @@ fun TopBarSimple(
         title = { Text(title) },
         actions = {
             if (isMain){
+                Space(x = 5)
                 IconButton(
                     onClick = onclick,
                     colors = IconButtonDefaults.iconButtonColors(containerColor = bagdeColor),
@@ -117,7 +118,7 @@ fun TopBarSimple(
                 ) {
                     Text(username?.get(0)?.uppercaseChar().toString(), color = Color.White)
                 }
-                Space(x = 18)
+                Space(x = 13)
                 IconButton(onClick = {onclickSync()}) {
                     Icon(painterResource(R.drawable.sync), null, modifier = Modifier.size(24.dp))
                 }

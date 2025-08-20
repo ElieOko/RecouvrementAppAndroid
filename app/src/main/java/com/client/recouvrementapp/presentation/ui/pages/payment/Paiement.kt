@@ -2,6 +2,7 @@ package com.client.recouvrementapp.presentation.ui.pages.payment
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -110,6 +111,8 @@ fun PaiementBody(
     val scope = rememberCoroutineScope()
     val coroutineScope = rememberCoroutineScope()
     val scrollVertical = rememberScrollState()
+    //latvar recouvrement : Recouvrement
+    lateinit var recouvrement : Recouvrement
     val context = LocalContext.current
     val channel      = Channel<UserModel>()
     val channelToken = Channel<TokenModel>()
@@ -125,7 +128,7 @@ fun PaiementBody(
     var code by remember { mutableStateOf("") }
     var device: String by remember { mutableStateOf("") }
     var transactionType by remember { mutableStateOf(TransactionType().asDataSelect()[0].description) }
-    var transactionTypeValue by remember { mutableStateOf("") }
+    var transactionTypeValue by remember { mutableStateOf(TransactionType().asDataSelect()[0].name) }
     var paymentMethod: String by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     var isActive by remember { mutableStateOf(true) }
@@ -133,6 +136,8 @@ fun PaiementBody(
     var msg: String? by remember { mutableStateOf("") }
     var titleMsg by remember { mutableStateOf("Erreur") }
     var isShow by remember { mutableStateOf(false) }
+    var stateRequest by remember { mutableStateOf(false) }
+    var stateRequestPosition by remember { mutableIntStateOf(0) }
     var selectedDate = datePickerState.selectedDateMillis?.let {
         convertMillisToDate(it)
     } ?: convertMillisToDate(System.currentTimeMillis())
@@ -172,8 +177,10 @@ fun PaiementBody(
                     textValueIn = transactionType,
                     onChangeText={item->
                         transactionTypeId = item.id
-                        transactionType = item.name
+                        transactionType = item.description
+                        //Toast.makeText(context,"${item.name}|${item.description}", Toast.LENGTH_LONG).show()
                         transactionTypeValue = item.name
+                        //Toast.makeText(context,"0 $transactionTypeValue", Toast.LENGTH_LONG).show()
                     },
                     icon = R.drawable.type
                 )
@@ -201,7 +208,7 @@ fun PaiementBody(
                                 append("*")
                             }}, color = Color.Black, fontSize = 18.sp )
                         InputField(
-                            modifier = Modifier.width(190.dp),
+                            modifier = Modifier.width(187.dp),
                             value = amount,
                             placeholder = "0.0",
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -215,7 +222,7 @@ fun PaiementBody(
                     Column {
                         Label("Devise", color = Color.Black, size = 18)
                         SelectInputField(
-                            modifier = Modifier.width(168.dp),
+                            modifier = Modifier.width(169.dp),
                             itemList = CurrencyModel().asDataSelect(currencyList?.value),
                             textValueIn = device,
                             onChangeText={item->
@@ -224,7 +231,6 @@ fun PaiementBody(
                             icon = R.drawable.money_
                         )
                     }
-
                 }
                 Space(y = 10)
                 Row(Modifier.fillMaxWidth()) {
@@ -286,307 +292,106 @@ fun PaiementBody(
 
                 Button(
                     onClick = {
-                        try {
-                            when(vm?.configuration?.isConnectNetwork){
-                                true->{
-                                    if (currencyId == 0){
-                                        isShow = true
-                                        msg = "Devise n'est pas renseigné"
-                                        titleMsg = "Champs vide"
-                                    }
-                                    if (code.isEmpty()){
-                                        isShow = true
-                                        msg = "Communication n'est pas renseigné"
-                                        titleMsg = "Champs vide"
-                                    }
-                                    if (amount.isEmpty()){
-                                        isShow = true
-                                        msg = "Montant n'est pas renseigné"
-                                        titleMsg = "Champs vide"
-                                    }
-                                    if (transactionType.isEmpty()){
-                                        isShow = true
-                                        msg = "TransactionType n'est pas renseigné"
-                                        titleMsg = "Champs vide"
-                                    }
-                                    if (transactionTypeValue.isNotEmpty() && amount.isNotEmpty() && code.isNotEmpty() && currencyId != 0){
-                                        when(transactionTypeValue){
-                                            "CotisationOrdinaire","CotisationSpesm" ->{
-                                                if (periodId == 0){
-                                                    isShow = true
-                                                    titleMsg = "Champs vide"
-                                                    msg = "Choisissez une periode"
-                                                } else{
+                        scope.launch {
+                            try {
+                                when(vm?.configuration?.isConnectNetwork){
+                                    true->{
+                                        if (currencyId == 0){
+                                            isShow = true
+                                            msg = "Devise n'est pas renseigné"
+                                            titleMsg = "Champs vide"
+                                        }
+                                        if (code.isEmpty()){
+                                            isShow = true
+                                            msg = "Communication n'est pas renseigné"
+                                            titleMsg = "Champs vide"
+                                        }
+                                        if (amount.isEmpty()){
+                                            isShow = true
+                                            msg = "Montant n'est pas renseigné"
+                                            titleMsg = "Champs vide"
+                                        }
+                                        if (transactionType.isEmpty()){
+                                            isShow = true
+                                            msg = "TransactionType n'est pas renseigné"
+                                            titleMsg = "Champs vide"
+                                        }
+                                        if (transactionTypeValue.isNotEmpty() && amount.isNotEmpty() && code.isNotEmpty() && currencyId != 0){
+                                            coroutineScope.launch {
+                                                isActive = false
+                                                delay(3000)
+                                                try {
+                                                    Log.e("SCOPE PAYMENT before","Mbote")
                                                     scope.launch {
-                                                        val recouvrement = Recouvrement(
-                                                            transactionType = transactionType,
-                                                            communication = code,
-                                                            amount = amount.toInt(),
-                                                            currencyId = currencyId,
-                                                            paymentMethodId = paymentTypeId,
-                                                            periodId = periodId
-                                                        )
-                                                        isActive = false
-                                                        delay(1000)
-                                                        Log.e(
-                                                            "_ici transactionTypeId",
-                                                            "$transactionTypeId"
-                                                        )
-                                                        try {
-                                                            Log.e(
-                                                                "_before request transactionTypeId",
-                                                                "$transactionTypeId"
-                                                            )
-                                                            scope.launch {
-                                                                StoreData(context).getUser.collect {user->
-                                                                    channel.send(UserModel(user.profile.id,user.profile.displayName,user.profile.username))
-                                                                    channelToken.send(TokenModel(user.access_token,user.token_type))
-                                                                }
-                                                            }
-                                                            val userModel = channel.receive()
-                                                            val response = requestServer(
-                                                                context = context,
-                                                                route = recouvrementRoute,
-                                                                data = recouvrement,
-                                                                method = "POST"
-                                                            )
-                                                            val status = response.status.value
-                                                            //isActive = false
-                                                            Log.e(
-                                                                "_after transactionTypeId",
-                                                                "$transactionTypeId"
-                                                            )
-                                                            when (status) {
-                                                                in 200..299 -> {
-                                                                    titleMsg = "success"
-                                                                    msg =
-                                                                        "Enregistrement réussie avec succès"
-                                                                    isShow = true
-
-                                                                    isActive = true
-                                                                    val data =
-                                                                        response.body<ResponseHttpRequestPayment>()
-                                                                    val dateTimeModel =
-                                                                        dateISOConvert(data.createdOn)
-                                                                    scope.launch {
-                                                                        vm.room.member.insert(
-                                                                            MemberModel(data.member.id,data.member.name)
-                                                                        )
-                                                                    }
-                                                                    scope.launch {
-                                                                        vm.room.recouvrement.insert(
-                                                                            RecouvrementModel(
-                                                                                id = data.id,
-                                                                                userId = userModel.id,
-                                                                                paymentMethodId = recouvrement.paymentMethodId,
-                                                                                periodId = periodId,
-                                                                                currencyId = recouvrement.currencyId,
-                                                                                memberId = data.member.id,
-                                                                                transactionType = transactionType,
-                                                                                code = code,
-                                                                                amount = amount.toInt(),
-                                                                                remark = remarks,
-                                                                                datePayment = "",
-                                                                                createdOn = dateTimeModel.date,
-                                                                                time = dateTimeModel.time
-                                                                            )
-                                                                        )
-                                                                        channelRecouvrement.send(data.id)
-                                                                    }
-                                                                }
-
-                                                                in 400..499 -> {
-                                                                    isShow = true
-                                                                    titleMsg = "Erreur"
-                                                                    isActive = true
-                                                                    val data = response.body<Any>()
-                                                                    msg = "$data"
-                                                                }
-
-                                                                in 500..599 -> {
-                                                                    titleMsg = "Erreur serveur"
-                                                                    msg =
-                                                                        "Erreur serveur réssayer plus tard nous resolvons ce problème"
-                                                                    isActive = true
-                                                                    isShow = true
-                                                                }
-                                                            }
-
-                                                        } catch (e: HttpRequestTimeoutException) {
-                                                            msg = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
-                                                            titleMsg = "Request expire"
-                                                            isShow = true
-                                                            isActive = true
-                                                            Log.e(
-                                                                "Network expired request ->",
-                                                                e.message.toString()
-                                                            )
-                                                        }
-                                                        catch(e : JsonConvertException){
-                                                            msg = e.message.toString()
-                                                            titleMsg = "Erreur sur la serialisation"
-                                                            isShow = true
-                                                            isActive = true
-                                                        }
-                                                        catch(e : Exception){
-                                                            msg = e.message.toString()
-                                                            titleMsg = "Erreur"
-                                                            isShow = true
-                                                            isActive = true
+                                                        StoreData(context).getUser.collect {user->
+                                                            channel.send(UserModel(user.profile.id,user.profile.displayName,user.profile.username))
+                                                            channelToken.send(TokenModel(user.access_token,user.token_type))
                                                         }
                                                     }
-                                                }
-                                            }
-                                            "Subscription"->{
-                                                if (selectedDate.isNotEmpty()){
-                                                    coroutineScope.launch {
-                                                        isActive = false
-                                                        delay(1000)
-                                                        try {
-                                                            Log.e("SCOPE PAYMENT before","Mbote")
-                                                            scope.launch {
-                                                                StoreData(context).getUser.collect {user->
-                                                                    channel.send(UserModel(user.profile.id,user.profile.displayName,user.profile.username))
-                                                                    channelToken.send(TokenModel(user.access_token,user.token_type))
-                                                                }
+                                                    val userModel = channel.receive()
+                                                    val tokenModel = channelToken.receive()
+
+                                                    when(transactionTypeValue){
+                                                        "CotisationOrdinaire","CotisationSpesm" ->{
+                                                            if (periodId == 0){
+                                                                isShow = true
+                                                                titleMsg = "Champs vide"
+                                                                msg = "Choisissez une periode"
+                                                            } else {
+                                                                stateRequestPosition = 1
+                                                                recouvrement =
+                                                                    Recouvrement(
+                                                                        transactionType = transactionTypeValue,
+                                                                        communication = code,
+                                                                        amount = amount.toInt(),
+                                                                        currencyId = currencyId,
+                                                                        paymentMethodId = paymentTypeId,
+                                                                        periodId = periodId
+                                                                    )
                                                             }
-                                                            val userModel = channel.receive()
-                                                            val tokenModel = channelToken.receive()
-                                                            val recouvrement = Recouvrement(
-                                                                transactionType = transactionType,
+                                                        }
+                                                        "Subscription"->{
+                                                            recouvrement = Recouvrement(
+                                                                transactionType = transactionTypeValue,
                                                                 communication = code,
                                                                 amount = amount.toInt(),
                                                                 currencyId = currencyId,
                                                                 paymentMethodId = paymentTypeId
                                                             )
-                                                            //coroutineScope.launch {
-                                                                Log.e("SCOPE PAYMENT","Here")
-                                                                val response = ktorClientAndroid.postData(
-                                                                    token = tokenModel.token,
-                                                                    route = recouvrementRoute,
-                                                                    data = recouvrement
-                                                                )
-                                                                Log.e("SCOPE PAYMENT END","Hola")
-                                                                isActive = true
-                                                                val status = response.status.value
-                                                                when (status) {
-                                                                    in 200..299 -> {
-                                                                        isShow = true
-                                                                        titleMsg = "success"
-                                                                        msg =
-                                                                            "Enregistrement réussie avec succès"
-                                                                        val data =
-                                                                            response.body<ResponseHttpRequestPayment>()
-                                                                        val dateTimeModel = dateISOConvert(data.createdOn)
-                                                                        scope.launch {
-                                                                            vm.room.member.insert(
-                                                                                MemberModel(data.member.id,data.member.name)
-                                                                            )
-                                                                        }
-                                                                        scope.launch {
-                                                                            vm.room.recouvrement.insert(
-                                                                                RecouvrementModel(
-                                                                                    id = data.id,
-                                                                                    userId = userModel.id,
-                                                                                    paymentMethodId = recouvrement.paymentMethodId,
-                                                                                    periodId = null,
-                                                                                    currencyId = recouvrement.currencyId,
-                                                                                    memberId = data.member.id,
-                                                                                    transactionType = transactionType,
-                                                                                    code = code,
-                                                                                    amount = amount.toInt(),
-                                                                                    remark = remarks,
-                                                                                    datePayment = "",
-                                                                                    createdOn = dateTimeModel.date,
-                                                                                    time = dateTimeModel.time
-                                                                                )
-                                                                            )
-                                                                            channelRecouvrement.send(data.id)
-                                                                        }
-                                                                    }
-
-                                                                    in 400..499 -> {
-                                                                        val data =
-                                                                            response.body<ResponseHttpRequest>()
-                                                                        titleMsg = "Erreur"
-                                                                        msg = data.message
-                                                                        isShow = true
-                                                                    }
-
-                                                                    in 500..599 -> {
-                                                                        titleMsg = "Erreur serveur"
-                                                                        msg =
-                                                                            "Erreur serveur réssayer plus tard nous resolvons ce problème"
-                                                                        isShow = true
-                                                                    }
-                                                                }
-                                                           // }
+                                                            stateRequestPosition = 0
                                                         }
-                                                        catch (e : HttpRequestTimeoutException){
-                                                            msg = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
-                                                            titleMsg = "Request expire"
-                                                            isShow = true
-                                                            isActive = true
-                                                            Log.e(
-                                                                "Network expired request ->",
-                                                                e.message.toString()
+                                                        else->{
+                                                            recouvrement = Recouvrement(
+                                                                transactionType = transactionTypeValue,
+                                                                communication = code,
+                                                                amount = amount.toInt(),
+                                                                currencyId = currencyId,
+                                                                paymentMethodId = paymentTypeId,
+                                                                // periodId = periodId
                                                             )
-                                                        }
-                                                        catch(e : JsonConvertException){
-                                                            msg = e.message.toString()
-                                                            titleMsg = "Erreur sur la serialisation"
-                                                            isShow = true
-                                                            isActive = true
-                                                        }
-                                                        catch(e: Exception) {
-                                                            msg = e.message.toString()
-                                                            titleMsg = "Exception"
-                                                            isShow = true
-                                                            isActive = true
-                                                            println("Erreur inconnue : ${e::class.simpleName} - ${e.message}")
+                                                            stateRequestPosition = 2
                                                         }
                                                     }
-                                                } else {
-                                                    isShow = true
-                                                    titleMsg = "Champs vide"
-                                                    msg = "Choisissez une date"
-                                                }
-                                            }
-                                            else -> {
-                                                scope.launch {
-                                                    val recouvrement = Recouvrement(
-                                                        transactionType = transactionType,
-                                                        communication = code,
-                                                        amount = amount.toInt(),
-                                                        currencyId = currencyId,
-                                                        paymentMethodId = paymentTypeId,
-                                                       // periodId = periodId
-                                                    )
-                                                    isActive = false
-                                                    delay(1000)
-                                                    try {
-                                                        scope.launch {
-                                                            StoreData(context).getUser.collect {user->
-                                                                channel.send(UserModel(user.profile.id,user.profile.displayName,user.profile.username))
-                                                                channelToken.send(TokenModel(user.access_token,user.token_type))
-                                                            }
-                                                        }
-                                                        val userModel = channel.receive()
-                                                        val tokenModel = channelToken.receive()
+                                                    if(stateRequest){
+                                                        isShow = true
+                                                    } else{
+                                                        Log.e("SCOPE PAYMENT","Here")
                                                         val response = ktorClientAndroid.postData(
                                                             token = tokenModel.token,
                                                             route = recouvrementRoute,
                                                             data = recouvrement
                                                         )
+                                                        Log.e("SCOPE PAYMENT END","Hola")
                                                         isActive = true
                                                         val status = response.status.value
                                                         when (status) {
                                                             in 200..299 -> {
+                                                                isShow = true
                                                                 titleMsg = "success"
                                                                 msg =
                                                                     "Enregistrement réussie avec succès"
-                                                                isShow = true
-                                                                val data = response.body<ResponseHttpRequestPayment>()
+                                                                val data =
+                                                                    response.body<ResponseHttpRequestPayment>()
                                                                 val dateTimeModel = dateISOConvert(data.createdOn)
                                                                 scope.launch {
                                                                     vm.room.member.insert(
@@ -616,62 +421,282 @@ fun PaiementBody(
                                                             }
 
                                                             in 400..499 -> {
-                                                                val data = response.body<Any>()
-                                                                isShow = true
+                                                                val data = response.body<ResponseHttpRequest>()
                                                                 titleMsg = "Erreur"
-                                                                msg = "$data"
+                                                                msg = data.message
+                                                                isShow = true
                                                             }
 
                                                             in 500..599 -> {
                                                                 titleMsg = "Erreur serveur"
-                                                                msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                                msg =
+                                                                    "Erreur serveur réssayer plus tard nous resolvons ce problème"
                                                                 isShow = true
                                                             }
                                                         }
                                                     }
-                                                    catch (e: HttpRequestTimeoutException) {
-                                                        msg =
-                                                            "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
-                                                        titleMsg = "Request expire"
+                                                    // }
+                                                }
+                                                catch (e : HttpRequestTimeoutException){
+                                                    msg = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
+                                                    titleMsg = "Request expire"
+                                                    isShow = true
+                                                    isActive = true
+                                                    Log.e(
+                                                        "Network expired request ->",
+                                                        e.message.toString()
+                                                    )
+                                                }
+                                                catch(e : JsonConvertException){
+                                                    msg = e.message.toString()
+                                                    titleMsg = "Erreur sur la serialisation"
+                                                    isShow = true
+                                                    isActive = true
+                                                }
+                                                catch(e: Exception) {
+                                                    msg = e.message.toString()
+                                                    titleMsg = "Exception"
+                                                    isShow = true
+                                                    isActive = true
+                                                    println("Erreur inconnue : ${e::class.simpleName} - ${e.message}")
+                                                }
+                                            }
+                                            /*when(transactionTypeValue){
+                                                /*"CotisationOrdinaire","CotisationSpesm" ->{
+                                                    if (periodId == 0){
                                                         isShow = true
-                                                        isActive = true
-                                                        Log.e(
-                                                            "Network expired request ->",
-                                                            e.message.toString()
-                                                        )
+                                                        titleMsg = "Champs vide"
+                                                        msg = "Choisissez une periode"
+                                                    } else{
+                                                        scope.launch {
+                                                            isActive = false
+                                                            delay(2000)
+                                                            try {
+                                                                scope.launch {
+                                                                    StoreData(context).getUser.collect {user->
+                                                                        channel.send(UserModel(user.profile.id,user.profile.displayName,user.profile.username))
+                                                                        channelToken.send(TokenModel(user.access_token,user.token_type))
+                                                                    }
+                                                                }
+                                                                val userModel = channel.receive()
+                                                                val tokenModel = channelToken.receive()
+                                                                val recouvrement = Recouvrement(
+                                                                    transactionType = transactionTypeValue,
+                                                                    communication = code,
+                                                                    amount = amount.toInt(),
+                                                                    currencyId = currencyId,
+                                                                    paymentMethodId = paymentTypeId,
+                                                                    periodId = periodId
+                                                                )
+                                                                val response = ktorClientAndroid.postData(
+                                                                    token = tokenModel.token,
+                                                                    route = recouvrementRoute,
+                                                                    data = recouvrement
+                                                                )
+                                                                isActive = true
+                                                                val status = response.status.value
+                                                                when (status) {
+                                                                    in 200..299 -> {
+                                                                        titleMsg = "success"
+                                                                        msg =
+                                                                            "Enregistrement réussie avec succès"
+                                                                        isShow = true
+                                                                        val data =
+                                                                            response.body<ResponseHttpRequestPayment>()
+                                                                        val dateTimeModel =
+                                                                            dateISOConvert(data.createdOn)
+                                                                        scope.launch {
+                                                                            vm.room.member.insert(
+                                                                                MemberModel(data.member.id,data.member.name)
+                                                                            )
+                                                                        }
+                                                                        scope.launch {
+                                                                            vm.room.recouvrement.insert(
+                                                                                RecouvrementModel(
+                                                                                    id = data.id,
+                                                                                    userId = userModel.id,
+                                                                                    paymentMethodId = recouvrement.paymentMethodId,
+                                                                                    periodId = periodId,
+                                                                                    currencyId = recouvrement.currencyId,
+                                                                                    memberId = data.member.id,
+                                                                                    transactionType = transactionType,
+                                                                                    code = code,
+                                                                                    amount = amount.toInt(),
+                                                                                    remark = remarks,
+                                                                                    datePayment = "",
+                                                                                    createdOn = dateTimeModel.date,
+                                                                                    time = dateTimeModel.time
+                                                                                )
+                                                                            )
+                                                                            channelRecouvrement.send(data.id)
+                                                                        }
+                                                                    }
+
+                                                                    in 400..499 -> {
+                                                                        isShow = true
+                                                                        titleMsg = "Erreur"
+                                                                        val data = response.body<Any>()
+                                                                        msg = "$data"
+                                                                    }
+
+                                                                    in 500..599 -> {
+                                                                        titleMsg = "Erreur serveur"
+                                                                        msg =
+                                                                            "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                                        isShow = true
+                                                                    }
+                                                                }
+
+                                                            } catch (e: HttpRequestTimeoutException) {
+                                                                msg = "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
+                                                                titleMsg = "Request expire"
+                                                                isShow = true
+                                                                isActive = true
+                                                                Log.e(
+                                                                    "Network expired request ->",
+                                                                    e.message.toString()
+                                                                )
+                                                            }
+                                                            catch(e : JsonConvertException){
+                                                                msg = e.message.toString()
+                                                                titleMsg = "Erreur sur la serialisation"
+                                                                isShow = true
+                                                                isActive = true
+                                                            }
+                                                            catch(e : Exception){
+                                                                msg = e.message.toString()
+                                                                titleMsg = "Erreur"
+                                                                isShow = true
+                                                                isActive = true
+                                                            }
+                                                        }
                                                     }
-                                                    catch(e : JsonConvertException){
-                                                        msg = e.message.toString()
-                                                        titleMsg = "Erreur sur la serialisation"
-                                                        isShow = true
-                                                        isActive = true
+                                                }*/
+                                                "Subscription"->{}
+                                                /*else -> {
+                                                    scope.launch {
+                                                        isActive = false
+                                                        delay(2000)
+                                                        try {
+                                                            scope.launch {
+                                                                StoreData(context).getUser.collect {user->
+                                                                    channel.send(UserModel(user.profile.id,user.profile.displayName,user.profile.username))
+                                                                    channelToken.send(TokenModel(user.access_token,user.token_type))
+                                                                }
+                                                            }
+                                                            val userModel = channel.receive()
+                                                            val tokenModel = channelToken.receive()
+                                                            val recouvrement = Recouvrement(
+                                                                transactionType = transactionTypeValue,
+                                                                communication = code,
+                                                                amount = amount.toInt(),
+                                                                currencyId = currencyId,
+                                                                paymentMethodId = paymentTypeId,
+                                                                // periodId = periodId
+                                                            )
+                                                            val response = ktorClientAndroid.postData(
+                                                                token = tokenModel.token,
+                                                                route = recouvrementRoute,
+                                                                data = recouvrement
+                                                            )
+                                                            isActive = true
+                                                            val status = response.status.value
+                                                            when (status) {
+                                                                in 200..299 -> {
+                                                                    titleMsg = "success"
+                                                                    msg =
+                                                                        "Enregistrement réussie avec succès"
+                                                                    isShow = true
+                                                                    val data = response.body<ResponseHttpRequestPayment>()
+                                                                    val dateTimeModel = dateISOConvert(data.createdOn)
+                                                                    scope.launch {
+                                                                        vm.room.member.insert(
+                                                                            MemberModel(data.member.id,data.member.name)
+                                                                        )
+                                                                    }
+                                                                    scope.launch {
+                                                                        vm.room.recouvrement.insert(
+                                                                            RecouvrementModel(
+                                                                                id = data.id,
+                                                                                userId = userModel.id,
+                                                                                paymentMethodId = recouvrement.paymentMethodId,
+                                                                                periodId = null,
+                                                                                currencyId = recouvrement.currencyId,
+                                                                                memberId = data.member.id,
+                                                                                transactionType = transactionType,
+                                                                                code = code,
+                                                                                amount = amount.toInt(),
+                                                                                remark = remarks,
+                                                                                datePayment = "",
+                                                                                createdOn = dateTimeModel.date,
+                                                                                time = dateTimeModel.time
+                                                                            )
+                                                                        )
+                                                                        channelRecouvrement.send(data.id)
+                                                                    }
+                                                                }
+
+                                                                in 400..499 -> {
+                                                                    val data = response.body<Any>()
+                                                                    isShow = true
+                                                                    titleMsg = "Erreur"
+                                                                    msg = "$data"
+                                                                }
+
+                                                                in 500..599 -> {
+                                                                    titleMsg = "Erreur serveur"
+                                                                    msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                                    isShow = true
+                                                                }
+                                                            }
+                                                        }
+                                                        catch (e: HttpRequestTimeoutException) {
+                                                            msg =
+                                                                "La requete a pris plus de temps que prevue cela est du a votre connection ressayer"
+                                                            titleMsg = "Request expire"
+                                                            isShow = true
+                                                            isActive = true
+                                                            Log.e(
+                                                                "Network expired request ->",
+                                                                e.message.toString()
+                                                            )
+                                                        }
+                                                        catch(e : JsonConvertException){
+                                                            msg = e.message.toString()
+                                                            titleMsg = "Erreur sur la serialisation"
+                                                            isShow = true
+                                                            isActive = true
+                                                        }
+                                                        catch(e : Exception){
+                                                            msg = e.message.toString()
+                                                            titleMsg = "Erreur sur la serialisation"
+                                                            isShow = true
+                                                            isActive = true
+                                                        }
                                                     }
-                                                    catch(e : Exception){
-                                                        msg = e.message.toString()
-                                                        titleMsg = "Erreur sur la serialisation"
-                                                        isShow = true
-                                                        isActive = true
-                                                    }
+                                                }*/
+                                            }*/
+                                            scope.launch {
+                                                val recouvementId = channelRecouvrement.receive()
+                                                if(recouvementId != null){
+                                                    navC?.navigate(route = ScreenRoute.PaymentPrinter.name +"/${recouvementId}")
                                                 }
                                             }
                                         }
-                                        scope.launch {
-                                            val recouvementId = channelRecouvrement.receive()
-                                            if(recouvementId != null){
-                                                navC?.navigate(route = ScreenRoute.PaymentPrinter.name +"/${recouvementId}")
-                                            }
-                                        }
+                                    }
+                                    else->{
+                                        msg = "Vous n'êtes pas connecté veuillez vérifier votre connexion !!!"
+                                        titleMsg = "Problème de connexion"
+                                        isShow = true
                                     }
                                 }
-                                else->{
-                                    msg = "Vous n'êtes pas connecté veuillez vérifier votre connexion !!!"
-                                    titleMsg = "Problème de connexion"
-                                    isShow = true
-                                }
                             }
-                        }
-                        catch (e : Exception){
-                            Log.e("error ->",e.message.toString())
+                            catch (e : Exception){
+                                Log.e("error ->",e.message.toString())
+                                titleMsg = "Exception"
+                                msg = e.message
+                                isShow = true
+                            }
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),

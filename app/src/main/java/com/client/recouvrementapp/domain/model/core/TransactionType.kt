@@ -22,7 +22,7 @@ data class TransactionType(
     fun asDataSelect(item : List<TransactionType> = listTransactionType()) : List<DataSelect>{
          val listDataSelect = mutableListOf<DataSelect>()
         item.forEach {
-            listDataSelect.add(DataSelect(id = it.id, name = it.description))
+            listDataSelect.add(DataSelect(id = it.id, name = it.name, description = it.description))
         }
         return listDataSelect
     }

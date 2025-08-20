@@ -1,6 +1,7 @@
 package com.client.recouvrementapp.presentation.ui.pages.payment
 
 import android.annotation.SuppressLint
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -27,15 +28,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import com.client.recouvrementapp.R
+import com.client.recouvrementapp.core.PrinterByteFeature
+import com.client.recouvrementapp.core.PrinterByteFeature.space
+import com.client.recouvrementapp.core.printer.PrinterImage
+import com.client.recouvrementapp.core.removeAccents
 import com.client.recouvrementapp.data.shared.StoreData
 import com.client.recouvrementapp.domain.viewmodel.ApplicationViewModel
 import com.client.recouvrementapp.domain.viewmodel.PrinterViewModel
+import com.client.recouvrementapp.presentation.components.elements.MAlertDialog
 import com.client.recouvrementapp.presentation.components.elements.TopBarSimple
 import com.partners.hdfils_recolte.presentation.ui.components.Space
 import com.qs.helper.printer.PrintService
@@ -65,6 +71,10 @@ fun PaimentPrinterBody(
     val viewModel: PrinterViewModel = viewModel()
     val detail = vm?.room?.recouvrement?.recouvrementDetail?.collectAsState()?.value
     val isActive = remember { mutableStateOf(true) }
+    val btMap = BitmapFactory.decodeResource(context.resources,R.drawable.logo)
+    var msg: String? by remember { mutableStateOf("") }
+    var titleMsg by remember { mutableStateOf("Erreur") }
+    var isShow by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit){
         scopeCoroutine.launch {
@@ -96,43 +106,72 @@ fun PaimentPrinterBody(
             Button(
                     onClick = {
                         isActive.value = false
-                        PrintService.LanguageStr = "Japanese"
+//                        PrintService.LanguageStr = "CP850"
+                        scopeCoroutine.launch {
                             try {
-                                val message = "hello bro welcome"
-                                val delimiterTop = "----- DEBUT -----\n"
-                                val delimiterBottom = "\n------ FIN ------\n"
+                                val transactionType = when(detail?.recouvrement?.transactionType){
+                                    "Subscription"-> "FJS Devise"
+                                    "LoanRepay"-> "Micro-Pret"
+                                    "Savings" -> "Epargne"
+                                    "CotisationOrdinaire" -> "Cotisation Ordinaire"
+                                    "CotisationSpesm" -> "Cotisation Spesm"
+                                    else-> ""
+                                }
+                                val devise = when(detail?.currency?.code){
+                                    "USD"-> "Dollar Americain"
+                                    "CDF"-> "Franc Congolais"
+                                    else -> ""
+                                }
+                                val sendTitle = PrinterByteFeature.title.toByteArray(charset("GBK"))
+                                val sendSubTitle = PrinterByteFeature.subTitle.uppercase().toByteArray(charset("GBK"))
+                                val sendMethodPayment = "Mode de paiement${space(17 - "Mode de paiement".length)}: ${removeAccents(detail?.paymentMethod?.name?.uppercase() as String)}".toByteArray(charset("GBK"))
+                                PrintService.pl.write(PrinterByteFeature.centerAlignemt)
+                                PrintService.pl.write(PrinterByteFeature.boldOff)
+                                PrintService.pl.write(sendTitle)
+                                PrintService.pl.write(PrinterByteFeature.line(0x01))
+                                PrintService.pl.write(PrinterByteFeature.boldOn)
+                                PrintService.pl.write(PrinterByteFeature.centerAlignemt)
+                                PrintService.pl.write(sendSubTitle)
+                                PrintService.pl.write(PrinterByteFeature.line(0x01))
+                                PrintService.pl.write(PrinterByteFeature.leftAlignemt)
+                                PrintService.pl.printText("De${space(5 - "De".length)}:\t ${detail.member?.name}\n")
+                                PrintService.pl.printText("Montant${space(17 - "Montant".length)}: ${detail.recouvrement?.amount}\n")
+                                PrintService.pl.printText("Devise${space(11 - "Devise".length)} : $devise\n")
+                                PrintService.pl.write(sendMethodPayment)
+                                PrintService.pl.write(PrinterByteFeature.line(0x01))
+                                PrintService.pl.printText("Projet${space(18 - "Projet".length)}: $transactionType\n")
+                                PrintService.pl.printText("Date et heure : ${detail.recouvrement?.createdOn} ${detail.recouvrement?.time}\n")
+                                PrintService.pl.printText("Par${space(5 - "Par".length)}: Agent ${detail.user?.displayName?.uppercase()}\n")
+                                PrintService.pl.write(PrinterByteFeature.line(0x02))
+                                PrintService.pl.printText("Contact${space(2)}: ${PrinterByteFeature.phone}\n")
+                                PrintService.pl.write(PrinterByteFeature.centerAlignemt)
+                                PrintService.pl.write(PrinterByteFeature.line(0x02))
+                                PrintService.pl.printText("Merci")
+                                PrintService.pl.write(PrinterByteFeature.boldOff)
+                                PrintService.pl.write(PrinterByteFeature.line(0x01))
+                                PrintService.pl.printText("Fondatation Jonathan Sangu")
+                                PrintService.pl.write(PrinterByteFeature.line(0x04))
+                                //PrintService.pl.write(PrinterByteFeature.line(0x01))
+                                //PrintService.pl.write(PrinterImage.draw2PxPoint(btMap))
+                                PrintService.pl.write(byteArrayOf(0x1d, 0x0c))
 
-                                val messageToPrint = delimiterTop + message + delimiterBottom
-
-                                val send = messageToPrint.toByteArray(charset("GBK"))
-                                PrintService.pl.write(send)
-                                PrintService.pl.printText("\n\n\n")
-                                PrintService.pl.write(byteArrayOf(0x1B,0x0C))
-                                PrintService.pl.write(byteArrayOf(0x1D, 0x56, 0x00))
-//                                PrintService.pl.write(byteArrayOf(0x1D))
-//                                PrintService.pl.write( byteArrayOf("V".toByte()))
-//                                PrintService.pl.write(byteArrayOf(48))
-//                                PrintService.pl.write(byteArrayOf(0))
                             }
                             catch (e : UnsupportedEncodingException){
-                                e.printStackTrace();
+                                e.printStackTrace()
+                                msg         = e.message
+                                titleMsg    = "Exception"
+                                isShow      = true
                                 Log.e("**********",e.message.toString())
                                 Toast.makeText(context,e.message.toString(), Toast.LENGTH_SHORT).show()
                             }
-                            /*
-                            0x1D
-
-                                outputStream.write(0x1D);
-                                outputStream.write("V".getBytes());
-                                outputStream.write(48);
-                                outputStream.write(0);
-
-                             */
-                            PrintService.pl.write(byteArrayOf(0x1d, 0x0c))
+                            catch (e : Exception){
+                                msg         = e.message
+                                titleMsg    = "Exception"
+                                isShow      = true
+                            }
+                            //PrintService.pl.write(byteArrayOf(0x1d, 0x0c))
                             isActive.value = true
-
-                       // }
-
+                        }
                     },
                     enabled = isActive.value ,
                     modifier = Modifier.fillMaxWidth(),
@@ -146,6 +185,15 @@ fun PaimentPrinterBody(
                     Space(x = 10)
                     Icon(painterResource(R.drawable.print),null, modifier = Modifier.size(24.dp), tint = Color.White)
                 }
+        }
+        if(isShow){
+            MAlertDialog(
+                dialogTitle = titleMsg,
+                dialogText =  "$msg",
+                onDismissRequest = {
+                    isShow = false
+                }
+            )
         }
     }
 }

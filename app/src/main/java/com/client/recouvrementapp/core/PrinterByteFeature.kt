@@ -17,8 +17,12 @@ object PrinterByteFeature {
         val line = byteArrayOf(cmdEsc,0x64, n)
         return line
     }
-    val title = "FJS"
-    val subTitle = "Reçu"
+
+    fun space(size : Int) = " ".repeat(size)
+    val title = "FJS ASBL"
+    val subTitle = "RECU"
+    val phone = "+243 978276398"
+    val email = "fondationjonathansanguofficiel@gmail.com"
     fun textAlignRow(label : String, valueText : String){
         val first = label.toByteArray(charset("GBK"))
         val second = valueText.toByteArray(charset("GBK"))

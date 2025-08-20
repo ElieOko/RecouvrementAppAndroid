@@ -80,7 +80,7 @@ import kotlinx.serialization.json.Json
 //    }
 //}
 class HttpClientAndroidBuild(var tokenAccess: String = ""){
-    private val NETWORK_TIME_OUT = 6_000L
+    private val NETWORK_TIME_OUT = 15_000L
         val httpClientAndroid = HttpClient(Android) {
             install(ContentNegotiation) {
                 json(

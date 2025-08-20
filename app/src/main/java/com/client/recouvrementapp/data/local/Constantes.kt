@@ -16,7 +16,7 @@ class Constantes {
         const val cotisationSpesmId = 13
         const val API_INTERNET_MESSAGE="No Internet Connection"
         fun convertMillisToDate(millis: Long): String {
-            val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formatter = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
             return formatter.format(Date(millis))
         }
         const val authConnectRoute = "auth/connect"

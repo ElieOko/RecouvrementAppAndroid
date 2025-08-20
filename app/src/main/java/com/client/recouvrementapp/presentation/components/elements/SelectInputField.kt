@@ -99,10 +99,10 @@ fun SelectInputField(
                 DropdownMenuItem(
                     modifier = Modifier.fillMaxWidth(),
                     text = {
-                        Text(text = item.name, color = Color.Black)
+                        Text(text = item.description.ifEmpty { item.name }, color = Color.Black)
                     },
                     onClick = {
-                        textValue = item.name
+                        textValue = item.description.ifEmpty { item.name }
                         onChangeText(item) // Appel de la fonction de changement
                         expanded = false
                         onChangeText(item)

@@ -9,9 +9,9 @@ data class DateTimeModel(
 )
 fun dateISOConvert(dateISO : String): DateTimeModel {
     val dateTime = OffsetDateTime.parse(dateISO)
-    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss")
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     val heure = dateTime.format(timeFormatter)
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
     val formattedDate = dateTime.format(formatter)
     return DateTimeModel(formattedDate,heure)
 }

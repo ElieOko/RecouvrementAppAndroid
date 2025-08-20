@@ -232,7 +232,7 @@ class MainActivity : ComponentActivity() {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace()
                             }
-                            PrintService.pl.write(byteArrayOf(0x1d, 0x67, 0x33))
+                            PrintService.pl.write(byteArrayOf(0x1B, 0x64, 0x01))
                             Toast.makeText(
                                 applicationContext,
                                 "SUCCESS_CONNECT", Toast.LENGTH_SHORT

@@ -87,6 +87,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
     var textPositive = "Valider"
     var textNegative = "Annuler"
     val dateCurrent = convertMillisToDate(System.currentTimeMillis())
+    var onclick : () -> Unit = {}
     val onClickSync : ()-> Unit = {
         if (vm?.configuration?.isConnectNetwork == true){
             scope.launch {
@@ -172,13 +173,20 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                     route = periodOpenRoute
                 )
                 val status = responsePeriod.status.value
+                textNegative = ""
+                onclick = {
+                    isShow.value = false
+                }
+                textPositive = "Ok"
                 when(status){
                     in 200..299 ->{
                         val data : ArrayList<KeyValue> = responsePeriod.body()
                         Log.e("RESPONSE->>>>>>>>>>>>>>>>","$data")
                         msg = "Mises à jours effectuer avec succès"
                         titleMsg = "Information"
+                        textNegative = ""
                         isShow.value = true
+
                         scope.launch {
                             data.forEach {period->
                                 val periodModel = PeriodModel(
@@ -210,7 +218,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
             navC?.navigate(route = ScreenRoute.PrinterConfig.name)
         })
     )
-    var onclick : () -> Unit = {}
+
     LaunchedEffect(Unit){
         scope.launch {
             StoreData(context).getUser.collect { u ->
@@ -258,7 +266,7 @@ fun HomeBody(navC: NavHostController? = null, vm: ApplicationViewModel? = null) 
                     Space(y = 10)
                     Text("Appuyez pour recouvrir sur +", color = Color.Black, fontSize = 18.sp)
                 }
-                Space(y = 150)
+                Space(y = 95)
                 ConstraintLayout {
                    // val (card) = createRefs()
                     Card(

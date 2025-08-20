@@ -1,5 +1,6 @@
 package com.client.recouvrementapp.core
 
+import java.text.Normalizer
 import java.util.Locale
 
 /**
@@ -22,4 +23,10 @@ fun hexStringToBytes(hexString: String): ByteArray {
 
 private fun charToByte(c: Char): Byte {
     return "0123456789abcdef".indexOf(c).toByte()
+}
+fun removeAccents(input: String): String {
+    // Décompose les caractères accentués en caractères de base + accents
+    val normalized = Normalizer.normalize(input, Normalizer.Form.NFD)
+    // Supprime tous les diacritiques (accents)
+    return normalized.replace("\\p{InCombiningDiacriticalMarks}+".toRegex(), "")
 }

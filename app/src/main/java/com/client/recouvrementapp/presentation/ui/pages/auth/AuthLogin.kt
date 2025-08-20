@@ -136,7 +136,7 @@ fun AuthLoginBody(
                         color = Color.Black
                     )
                     Text(
-                        text = "Recouvrement management",
+                        text = "Recouvrement FJS",
                         fontSize = 14.sp,
                         color = Color.Black.copy(alpha = 0.8f)
                     )
@@ -288,6 +288,12 @@ fun AuthLoginBody(
                                                     isShow      = true
                                                     isActive    = true
                                                     Log.e("Network expired request ->",e.message.toString())
+                                                }
+                                                catch (e : Exception){
+                                                    msg         = "${e.message}\nVeuillez ressayer !!"
+                                                    titleMsg    = "Exception"
+                                                    isShow      = true
+                                                    isActive    = true
                                                 }
                                             }
                                         }
