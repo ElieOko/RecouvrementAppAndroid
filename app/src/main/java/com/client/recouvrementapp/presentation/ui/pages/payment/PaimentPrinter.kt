@@ -111,11 +111,9 @@ fun PaimentPrinterBody(
                             try {
                                 val transactionType = when(detail?.recouvrement?.transactionType){
                                     "Subscription"-> "FJS Devise"
-                                    "LoanRepay"-> "Micro-Pret"
-                                    "Savings" -> "Epargne"
-                                    "CotisationOrdinaire" -> "Cotisation Ordinaire"
-                                    "CotisationSpesm" -> "Cotisation Spesm"
-                                    else-> ""
+                                    "Prêt"-> "Micro-Pret"
+                                    "Epargne" -> "Epargne"
+                                    else-> detail?.recouvrement?.transactionType
                                 }
                                 val devise = when(detail?.currency?.code){
                                     "USD"-> "Dollar Americain"
@@ -139,7 +137,7 @@ fun PaimentPrinterBody(
                                 PrintService.pl.printText("Devise${space(11 - "Devise".length)} : $devise\n")
                                 PrintService.pl.write(sendMethodPayment)
                                 PrintService.pl.write(PrinterByteFeature.line(0x01))
-                                PrintService.pl.printText("Projet${space(18 - "Projet".length)}: $transactionType\n")
+                                PrintService.pl.printText("Projet${space(17 - "Projet".length)}: $transactionType\n")
                                 PrintService.pl.printText("Date et heure : ${detail.recouvrement?.createdOn} ${detail.recouvrement?.time}\n")
                                 PrintService.pl.printText("Par${space(5 - "Par".length)}: Agent ${detail.user?.displayName?.uppercase()}\n")
                                 PrintService.pl.write(PrinterByteFeature.line(0x02))

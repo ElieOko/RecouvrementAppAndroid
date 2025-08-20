@@ -222,63 +222,64 @@ fun AuthLoginBody(
                                             titleMsg = "Champs vide"
                                         }
                                         if (username.isNotEmpty() && password.isNotEmpty()){
-                                            coroutineScope.launch {
-                                                isActive = false
-                                                delay(1000)
-                                                Log.e("connect server->","${UserAuth(username,password)}")
                                                 try {
-                                                    val response = KtorClientAndroid().postData(authConnectRoute,
-                                                        UserAuth(username =username,password = password, grant_type = "password")
-                                                    )
-                                                    val status = response.status.value
-                                                    when(status){
-                                                        in 200..299 ->{
-                                                            isActive = true
-                                                            val res = response.body<ResponseHttpRequestAuth>()
-                                                            val userModel = UserModel(id = res.profile.id, username = res.profile.username, displayName = res.profile.displayName)
-                                                            Log.e("data response ->","$res")
-                                                            scope.launch {
-                                                                //StoreData(context).delete()
-                                                                val userT = ProfilUser(
-                                                                    token_type = res.token_type,
-                                                                    access_token = res.access_token,
-                                                                    profile = User(res.profile.id,
-                                                                        res.profile.displayName,
-                                                                        res.profile.username
+                                                    coroutineScope.launch {
+                                                        isActive = false
+                                                        delay(1000)
+                                                        Log.e("connect server->","${UserAuth(username,password)}")
+                                                        val response = KtorClientAndroid().postData(authConnectRoute,
+                                                            UserAuth(username =username,password = password, grant_type = "password")
+                                                        )
+                                                        val status = response.status.value
+                                                        when(status){
+                                                            in 200..299 ->{
+                                                                isActive = true
+                                                                val res = response.body<ResponseHttpRequestAuth>()
+                                                                val userModel = UserModel(id = res.profile.id, username = res.profile.username, displayName = res.profile.displayName)
+                                                                Log.e("data response ->","$res")
+                                                                scope.launch {
+                                                                    //StoreData(context).delete()
+                                                                    val userT = ProfilUser(
+                                                                        token_type = res.token_type,
+                                                                        access_token = res.access_token,
+                                                                        profile = User(res.profile.id,
+                                                                            res.profile.displayName,
+                                                                            res.profile.username
+                                                                        )
                                                                     )
-                                                                )
-                                                                Log.e("Call response ->***","$userT")
-                                                                StoreData(context).saveUser(userT)
-                                                            }
-                                                            scope.launch {
-                                                                vm.room.user.getUser(userId = userModel.id)
-                                                                if (userList?.value?.isNotEmpty() == true){
-                                                                    vm.room.user.update(userModel)
-                                                                    Log.i("update user->","$userModel")
-                                                                } else{
-                                                                    vm.room.user.insert(userModel)
-                                                                    Log.i("insert user->","$userModel")
+                                                                    Log.e("Call response ->***","$userT")
+                                                                    StoreData(context).saveUser(userT)
                                                                 }
-                                                                Log.i("size user->","${userList?.value?.size}")
-                                                            }
-                                                            navC?.navigate(route = ScreenRoute.Home.name){
-                                                                popUpTo(navC.graph.id){
-                                                                    inclusive = true
+                                                                scope.launch {
+                                                                    vm.room.user.getUser(userId = userModel.id)
+                                                                    if (userList?.value?.isNotEmpty() == true){
+                                                                        vm.room.user.update(userModel)
+                                                                        Log.i("update user->","$userModel")
+                                                                    } else{
+                                                                        vm.room.user.insert(userModel)
+                                                                        Log.i("insert user->","$userModel")
+                                                                    }
+                                                                    Log.i("size user->","${userList?.value?.size}")
+                                                                }
+                                                                navC?.navigate(route = ScreenRoute.Home.name){
+                                                                    popUpTo(navC.graph.id){
+                                                                        inclusive = true
+                                                                    }
                                                                 }
                                                             }
-                                                        }
-                                                        in 500..599 ->{
-                                                            isActive = true
-                                                            titleMsg = "Erreur serveur"
-                                                            msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
-                                                            isShow = true
-                                                        }
-                                                        in 400..499 ->{
-                                                            isActive = true
-                                                            val res = response.body<ResponseHttpRequest>()
-                                                            titleMsg = "erreur"
-                                                            msg = res.message
-                                                            isShow = true
+                                                            in 500..599 ->{
+                                                                isActive = true
+                                                                titleMsg = "Erreur serveur"
+                                                                msg = "Erreur serveur réssayer plus tard nous resolvons ce problème"
+                                                                isShow = true
+                                                            }
+                                                            in 400..499 ->{
+                                                                isActive = true
+                                                                val res = response.body<ResponseHttpRequest>()
+                                                                titleMsg = "erreur"
+                                                                msg = res.message
+                                                                isShow = true
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -295,7 +296,7 @@ fun AuthLoginBody(
                                                     isShow      = true
                                                     isActive    = true
                                                 }
-                                            }
+
                                         }
                                     }
                                     else -> {
